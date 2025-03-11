@@ -1,0 +1,411 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.login-body {
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px; 
+    padding: 30px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+form {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    gap: 10px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%; 
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border-color: #4A90E2;
+}
+
+button[type="submit"] {
+    background-color: #987554;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+button[type="submit"]:hover {
+    background-color: #664229;
+}
+
+p {
+    font-size: 14px;
+    margin-top: 15px;
+    color: #555;
+}
+
+a {
+    color: #4A90E2;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #357ABD;
+}
+
+select {
+    appearance: none;
+    background-color: white;
+    background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"%3e%3cpath fill="none" d="M12 6l-4 4-4-4"/%3e%3c/svg%3e');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 12px;
+    padding-right: 30px;
+}
+
+#register-form {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#register-form input[type="text"],
+#register-form input[type="email"],
+#register-form input[type="password"],
+#register-form select {
+    width: 48%; 
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #664229;
+    padding: 15px 20px;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar .website-name {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    color: #E5D3B3;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger div {
+    width: 30px;
+    height: 3px;
+    background-color: white;
+    margin: 5px;
+}
+
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: #987554;
+    width: 100%;
+    padding: 10px 0;
+    z-index: 100;
+}
+
+.mobile-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 20px;
+    display: block;
+    text-align: center;
+}
+
+.mobile-menu a:hover {
+    background-color: #E5D3B3;
+}
+
+.calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+#calendar {
+    width: 90%;
+    max-width: 700px;
+    margin-top: 50px; 
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #664229;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); 
+}
+.fc-event {
+    cursor: pointer;
+}
+.fc td, 
+.fc th {
+    border-color: #d2a679 !important; 
+}
+
+.fc-day-grid-event {
+    border: 1px solid #a67c52 ; 
+    background-color: #f5e1c8 !important; 
+    color: #5a3e2b !important; 
+}
+
+.fc-button {
+    background: #d2a679 !important;
+    background-color: #d2a679 !important;
+    border: 1px solid #a67c52 !important;
+    color: #ffffff !important;
+    border-radius: 5px !important;
+    padding: 8px 12px !important;
+    transition: all 0.3s ease-in-out;
+}
+
+.fc-button:hover,
+.fc-button:focus {
+    background: #a67c52 !important;
+    background-color: #a67c52 !important;
+    border-color: #8b5e3b !important;
+    color: #fff !important;
+}
+
+.fc-button.fc-button-active,
+.fc-button-active {
+    background: #8b5e3b !important;
+    background-color: #8b5e3b !important;
+    border-color: #704b2b !important;
+}
+
+.fc-button-disabled {
+    background: #c4a484 !important;
+    background-color: #c4a484 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+.event-delete {
+    float: right;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.event-delete:hover {
+    color: darkred;
+}
+
+.floating-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #987554;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s;
+}
+
+.floating-btn:hover {
+    background-color: #664229;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 300px;
+}
+
+.popup-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.popup-content textarea, .popup-content select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.popup-content button {
+    background-color: #987554;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.popup-content button:hover {
+    background-color: #664229;
+}
+
+.close-btn {
+    font-size: 20px;
+    color: red;
+    cursor: pointer;
+    float: right;
+    margin-bottom: 10px;
+}
+
+.notices {
+    margin-top: 20px;
+}
+
+.notice {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.actions {
+    text-align: right; 
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    color: darkred;
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .mobile-menu.active {
+        display: flex;
+    }
+
+    #calendar {
+        width: 100%;
+        font-size: 10px;
+    }
+    #calendar .fc-button {
+        padding: 5px 8px !important;
+        margin: 5px !important;
+    }
+   
+}
+@media (max-width: 500px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    form {
+        flex-direction: column; 
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    button[type="submit"] {
+        font-size: 14px;
+        padding: 10px;
+        width: 100%; 
+    }
+}
