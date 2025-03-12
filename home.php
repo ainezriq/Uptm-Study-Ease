@@ -190,7 +190,7 @@ session_start();
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
-    <?php echo $userType, $userCourse, $userEmail; ?>
+
 
 
     <div class="calendar-container">
