@@ -17,27 +17,7 @@ session_start();
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.js"></script>
 
 
-    <!-- SUBJECT SELECTION -->
-    <div class="subject-container">
-        <h3>Select Subjects</h3>
-        <form id="subjectForm">
-            <div id="subjectList">
-                <div class="subject-entry">
-                    <select name="subjects[]" class="subject-dropdown">
-                        <option value="">Select Subject</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Business Management">Business Management</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                    </select>
-                </div>
-            </div>
-            <button type="button" id="addSubject">+ Add Subject</button>
-            <button type="submit">Save Subjects</button>
-        </form>
-    </div>
-
+    
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
@@ -235,6 +215,28 @@ session_start();
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
+
+        <!-- SUBJECT SELECTION -->
+    <div class="subject-container">
+        <h3>Select Subjects</h3>
+        <form id="subjectForm">
+            <div id="subjectList">
+                <div class="subject-entry">
+                    <select name="subjects[]" class="subject-dropdown">
+                        <option value="">Select Subject</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Business Management">Business Management</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" id="addSubject">+ Add Subject</button>
+            <button type="submit">Save Subjects</button>
+        </form>
+    </div>
+
 
         <!-- Mobile Menu -->
         <div class="hamburger">
