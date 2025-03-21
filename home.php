@@ -16,6 +16,28 @@ session_start();
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.2.0/dist/fullcalendar.min.js"></script>
 
+
+    <!-- SUBJECT SELECTION -->
+    <div class="subject-container">
+        <h3>Select Subjects</h3>
+        <form id="subjectForm">
+            <div id="subjectList">
+                <div class="subject-entry">
+                    <select name="subjects[]" class="subject-dropdown">
+                        <option value="">Select Subject</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Business Management">Business Management</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" id="addSubject">+ Add Subject</button>
+            <button type="submit">Save Subjects</button>
+        </form>
+    </div>
+
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
@@ -134,6 +156,45 @@ session_start();
                 }
             });
         });
+
+        // ADD MORE SUBJECT FIELDS
+        $("#addSubject").click(function() {
+                $("#subjectList").append(`
+                    <div class="subject-entry">
+                        <select name="subjects[]" class="subject-dropdown">
+                            <option value="">Select Subject</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Business Management">Business Management</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                        </select>
+                        <button type="button" class="removeSubject">❌</button>
+                    </div>
+                `);
+            });
+
+            // REMOVE A SUBJECT FIELD
+            $(document).on("click", ".removeSubject", function() {
+                $(this).parent().remove();
+            });
+
+            // SAVE SUBJECTS TO DATABASE
+            $("#subjectForm").submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: 'auth/store_subjects.php',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        alert(response);
+                    },
+                    error: function() {
+                        alert("Error saving subjects.");
+                    }
+                });
+            });
+
 
         document.addEventListener("DOMContentLoaded", function() {
             const hamburger = document.querySelector(".hamburger");
