@@ -27,7 +27,7 @@
 
         <!-- Login Form -->
         <form id="login-form" class="login-form" action="auth/login.php" method="POST">
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="text" name="studentId" placeholder="Student ID" required>
             <br>
             <input type="password" name="password" placeholder="Password" required>
             <br>
@@ -43,52 +43,25 @@
             <br>
             <input type="password" name="password" placeholder="Password" required>
             <br>
-            <input type="text" name="nric" placeholder="NRIC" required>
-            <br>
-            <input type="text" name="studentId" placeholder="Student ID" required>
-            <br>
-            <input type="text" name="userNo" placeholder="User Number" required>
-            <br>
             <!-- Course Select -->
             <select name="course" required>
                 <option value="" disabled selected>Select Course</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Cyber Security">Cyber Security</option>
-                <option value="Early Childhood Education">Early Childhood Education</option>
-                <option value="Human Resource">Human Resource</option>
+                <option value="CC101 - Diploma in Computer Science">CC101 - Diploma in Computer Science</option>
+                <option value="CC102 - Diploma in Cyber Security">CC102 - Diploma in Cyber Security</option>
+                <option value="CC103 - Diploma in Early Childhood Education">CC103 - Diploma in Early Childhood Education</option>
+                <option value="CC104 - Diploma in Human Resource">CC104 - Diploma in Human Resource</option>
             </select>
             <br>
-            <select name="semester" required>
-                <option value="" disabled selected>Select Semester</option>
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
+            <!-- User Type Selection -->
+            <select name="userType" required>
+                <option value="" disabled selected>Select User Type</option>
+                <option value="Student">Student</option>
+                <option value="Lecturer">Lecturer</option>
             </select>
             <br>
             <button type="submit" name="register">Sign Up</button>
             <p>Already have an account? <a href="#" onclick="showForm('login')">Login here</a></p>
         </form>
-
-        <script>
-            // Automatically detect userType based on email
-            document.getElementById('email').addEventListener('input', function() {
-                let email = this.value.toLowerCase();
-                let userType = '';
-
-                if (email.includes('cood')) {
-                    userType = 'Lecturer';
-                } else {
-                    userType = 'Student';
-                }
-
-                document.getElementById('userType').value = userType;
-            });
-        </script>
-
-
     </div>
 </body>
 
