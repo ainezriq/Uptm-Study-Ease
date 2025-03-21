@@ -131,17 +131,31 @@ session_start();
         });
 
         function addSubjectField() {
-            let subjectList = document.getElementById("subject-list");
-            let newSelect = document.createElement("select");
-            newSelect.innerHTML = `
-                <option value="" disabled selected>Select Subject</option>
-                <option value="Math">Math</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="History">History</option>
-                <option value="Physics">Physics</option>
-            `;
-            subjectList.appendChild(newSelect);
-        }
+    var subjectList = document.getElementById("subject-list");
+
+    var newSubject = document.createElement("div");
+    newSubject.classList.add("subject-item");
+    
+    newSubject.innerHTML = `
+        <select name="subjects[]">
+            <option value="">Select Subject</option>
+            <option value="ITC2193 - Information Technology Essentials">ITC2193</option>
+            <option value="ITC2173 - Enterprise Information Systems">ITC2173</option>
+            <option value="FYP3024 - Computing Project">FYP3024</option>
+            <option value="ITC1083 - Business Information Management Strategy">ITC1083</option>
+            <option value="ARC3043 - Linux OS">ARC3043</option>
+            <option value="SWC3403 - Introduction to Mobile Application Development">SWC3403</option>
+        </select>
+        <button class="remove-subject-btn" onclick="removeSubjectField(this)">❌</button>
+    `;
+
+    subjectList.appendChild(newSubject);
+}
+
+function removeSubjectField(button) {
+    button.parentElement.remove();
+}
+
     </script>
 </head>
 
