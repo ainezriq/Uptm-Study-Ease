@@ -10,9 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['register'])) {
         $username = htmlspecialchars(trim($_POST['username']));
         $email = trim(strtolower($_POST['email']));
-        $studentId = trim($_POST['studentId']); // Student ID for login
+        $studentId = trim($_POST['studentId']);
         $course = trim($_POST['course']);
-        $userType = trim($_POST['userType']); // User selects Student or Lecturer
+        $userType = trim($_POST['userType']);
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             header("Location: ../index.php?error=invalid_email");
@@ -30,12 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
 
-        // Hash the password
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        // Insert user
+        // Insert user without hashing password
         $stmt = $conn->prepare("INSERT INTO users (username, email, studentId, password, userType, course) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssss", $username, $email, $studentId, $hashedPassword, $userType, $course);
+        $stmt->bind_param("ssssss", $username, $email, $studentId, $password, $userType, $course);
 
         if ($stmt->execute()) {
             header("Location: ../index.php?success=registered");
@@ -54,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->num_rows > 0) {
             $stmt->bind_result($db_password, $userType, $course);
             $stmt->fetch();
-            if (password_verify($password, $db_password)) {
+            if ($password === $db_password) { // Direct password check
                 $_SESSION['studentId'] = $studentId;
                 $_SESSION['userType'] = $userType;
                 $_SESSION['course'] = $course;
