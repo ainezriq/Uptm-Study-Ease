@@ -240,12 +240,14 @@ session_start();
             <div id="subjectList">
                 <div class="subject-entry">
                     <select name="subjects[]" class="subject-dropdown">
-                        <option value="">Select Subject</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Business Management">Business Management</option>
-                        <option value="Software Engineering">Software Engineering</option>
+                    <option value="">Select Subject</option>
+                    <option value="ITC1083">Business Information Management Strategy</option>
+                    <option value="ITC2173">Enterprise Information Systems</option>
+                    <option value="ITC2193">Information Technology Essentials</option>
+                    <option value="ARC3043">Linux OS</option>
+                    <option value="SWC3403">Introduction to Mobile Application Development</option>
+                    <option value="FYP3024">Computing Project</option>
+
                     </select>
                 </div>
             </div>
