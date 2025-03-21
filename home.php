@@ -59,9 +59,8 @@ session_start();
                                 try {
                                     console.log("Add Event Response:", response);
                                     if (typeof response === "string") {
-                                        response = JSON.parse(response); // Ensure it's valid JSON
+                                        response = JSON.parse(response);
                                     }
-
                                     if (response.success) {
                                         alert(response.success);
                                         $('#calendar').fullCalendar('refetchEvents');
@@ -84,13 +83,10 @@ session_start();
                 // Render events
                 eventRender: function(event, element) {
                     console.log("Rendering event:", event);
-
                     element.find('.fc-time').remove();
-
                     var deleteBtn = $('<span class="event-delete"> ❌ </span>');
-
                     deleteBtn.on('click', function(e) {
-                        e.stopPropagation(); // Prevent triggering eventClick
+                        e.stopPropagation();
                         if (confirm("Are you sure you want to delete this event?")) {
                             $.ajax({
                                 url: 'functions/delete_events.php',
@@ -108,7 +104,6 @@ session_start();
                             });
                         }
                     });
-
                     element.find('.fc-title').append(deleteBtn);
                 },
 
@@ -135,65 +130,43 @@ session_start();
             });
         });
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const hamburger = document.querySelector(".hamburger");
-            const mobileMenu = document.querySelector(".mobile-menu");
-            const navLinks = document.querySelector(".nav-links");
-
-            hamburger.addEventListener("click", function() {
-                mobileMenu.classList.toggle("active");
-            });
-
-            function checkScreenSize() {
-                if (window.innerWidth > 768) {
-                    mobileMenu.classList.remove("active");
-                    navLinks.style.display = "flex";
-                } else {
-                    navLinks.style.display = "none";
-                }
-            }
-            checkScreenSize();
-            window.addEventListener("resize", checkScreenSize);
-        });
+        function addSubjectField() {
+            let subjectList = document.getElementById("subject-list");
+            let newSelect = document.createElement("select");
+            newSelect.innerHTML = `
+                <option value="" disabled selected>Select Subject</option>
+                <option value="Math">Math</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="History">History</option>
+                <option value="Physics">Physics</option>
+            `;
+            subjectList.appendChild(newSelect);
+        }
     </script>
-
 </head>
 
 <body>
-    <!-- Navbar -->
     <div class="navbar">
         <div class="logo">
             <img src="assets/logo.png" alt="Logo" class="logo-img">
             <span class="website-name">UPTM Study Ease</span>
         </div>
-
-        <!-- Desktop Navigation -->
         <div class="nav-links">
             <a href="home.php">Home</a>
             <a href="inbox.php">Inbox</a>
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
-
-        <!-- Mobile Menu -->
-        <div class="hamburger">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
     </div>
 
-    <!-- Mobile Dropdown Menu -->
-    <div class="mobile-menu">
-        <a href="home.php">Home</a>
-        <a href="inbox.php">Inbox</a>
-        <a href="profile.php">Profile</a>
-        <a href="logout.php">Logout</a>
+    <div class="subject-container">
+        <h3>Select Subjects</h3>
+        <div id="subject-list"></div>
+        <button onclick="addSubjectField()">Add Another Subject</button>
     </div>
 
     <div class="calendar-container">
         <div id="calendar"></div>
     </div>
 </body>
-
 </html>
