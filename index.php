@@ -43,6 +43,9 @@
             <br>
             <input type="password" name="password" placeholder="Password" required>
             <br>
+            <input type="text" name="studentId" placeholder="Student ID" required>
+<br>
+
             <!-- Course Select -->
             <select name="course" required>
                 <option value="" disabled selected>Select Course</option>
