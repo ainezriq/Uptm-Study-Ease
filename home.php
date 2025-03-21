@@ -216,7 +216,24 @@ session_start();
             <a href="logout.php">Logout</a>
         </div>
 
-        <!-- SUBJECT SELECTION -->
+
+        <!-- Mobile Menu -->
+        <div class="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div class="mobile-menu">
+        <a href="home.php">Home</a>
+        <a href="inbox.php">Inbox</a>
+        <a href="profile.php">Profile</a>
+        <a href="logout.php">Logout</a>
+    </div>
+
+    <!-- SUBJECT SELECTION -->
     <div class="subject-container">
         <h3>Select Subjects</h3>
         <form id="subjectForm">
@@ -237,22 +254,6 @@ session_start();
         </form>
     </div>
 
-
-        <!-- Mobile Menu -->
-        <div class="hamburger">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
-    <!-- Mobile Dropdown Menu -->
-    <div class="mobile-menu">
-        <a href="home.php">Home</a>
-        <a href="inbox.php">Inbox</a>
-        <a href="profile.php">Profile</a>
-        <a href="logout.php">Logout</a>
-    </div>
 
     <div class="calendar-container">
         <div id="calendar"></div>
