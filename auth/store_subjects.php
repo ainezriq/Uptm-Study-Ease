@@ -1,21 +1,28 @@
 <?php
 session_start();
-include '../config/db.php'; // Ensure database connection
+include '../auth/conn.php'; // Ensure this file connects to your database
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty($_POST['subjects']) && !empty($_SESSION['email'])) {
-        $email = $_SESSION['email']; // Store email instead of user_id
-        $subjects = $_POST['subjects'];
+if (!isset($_SESSION['email'])) {
+    echo json_encode(["error" => "User not logged in"]);
+    exit;
+}
 
-        foreach ($subjects as $subject) {
-            $stmt = $conn->prepare("INSERT INTO subjects (subject_name, email) VALUES (?, ?)");
-            $stmt->bind_param("ss", $subject, $email);
-            $stmt->execute();
+$email = $_SESSION['email'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($_POST['subjects'])) {
+        $stmt = $conn->prepare("INSERT INTO subjects (subject_name, email) VALUES (?, ?)");
+        foreach ($_POST['subjects'] as $subject) {
+            $subject = trim($subject);
+            if (!empty($subject)) {
+                $stmt->bind_param("ss", $subject, $email);
+                $stmt->execute();
+            }
         }
-
-        header("Location: ../home.php?status=success");
+        echo json_encode(["success" => "Subjects saved successfully!"]);
     } else {
-        header("Location: ../home.php?status=error");
+        echo json_encode(["error" => "No subjects selected."]);
     }
+    exit;
 }
 ?>
