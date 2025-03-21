@@ -283,39 +283,48 @@ select {
     transition: background 0.3s;
 }
 
-.subject-container {
+.content-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+    justify-content: space-between;
+    align-items: flex-start;
     padding: 20px;
-    background-color: #f9f9f9;
+    gap: 20px;
+}
+
+.subject-container {
+    width: 300px;
+    min-height: 250px;
+    background-color: white;
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-}
-
-.subject-container h2 {
-    font-size: 20px;
-    color: #333;
-}
-
-.subject-list {
-    width: 100%;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
+.subject-container h2 {
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+.subject-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+}
+
 .subject-button {
-    padding: 10px 15px;
+    padding: 10px;
     background-color: #664229;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -323,6 +332,11 @@ select {
 .subject-button:hover {
     background-color: #987554;
 }
+
+.calendar-container {
+    flex-grow: 1;
+}
+
 
 
 
