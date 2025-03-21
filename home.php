@@ -174,10 +174,11 @@ function removeSubjectField(button) {
     </div>
 
     <div class="subject-container">
-        <h3>Select Subjects</h3>
-        <div id="subject-list"></div>
-        <button onclick="addSubjectField()">Add Another Subject</button>
-    </div>
+    <h2>Select Subjects</h2>
+    <div id="subject-list" class="subject-list"></div>
+    <button class="subject-button" onclick="addSubjectField()">Add Another Subject</button>
+</div>
+
 
     <div class="calendar-container">
         <div id="calendar"></div>
