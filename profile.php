@@ -1,83 +1,83 @@
 <?php
 session_start();
 include 'auth/conn.php';
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['studentId'])) {
     header("Location: login.php");
     exit();
 }
 
-$email = $_SESSION['email'];
+$studentId = $_SESSION['studentId'];
 $userType = $_SESSION['userType'];
 
-// Fetch user details
-$stmt = $conn->prepare("SELECT username, email, nric, studentId, userNo, userType, course, semester FROM users WHERE email = ?");
-$stmt->bind_param("s", $email);
+// Fetch user details using studentId (since id is not stored in session)
+$stmt = $conn->prepare("SELECT id, username, email, studentId, userType, course, subject FROM users WHERE studentId = ?");
+$stmt->bind_param("s", $studentId);  // Use "s" because studentId is a string
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
+if (!$user) {
+    die("User data not found.");
+}
+
 // Handle Profile Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     $username = $_POST['username'];
-    $nric = $_POST['nric'];
-    $studentId = $_POST['studentId'];
-    $userNo = $_POST['userNo'];
     $course = $_POST['course'];
+    $subject = $_POST['subject'];
 
-    // Only get semester if it's available in $_POST
-    $semester = isset($_POST['semester']) ? $_POST['semester'] : NULL;
-
-    if ($semester !== NULL) {
-        $update_stmt = $conn->prepare("UPDATE users SET username = ?, nric = ?, studentId = ?, userNo = ?, course = ?, semester = ? WHERE email = ?");
-        $update_stmt->bind_param("sssssss", $username, $nric, $studentId, $userNo, $course, $semester, $email);
-    } else {
-        $update_stmt = $conn->prepare("UPDATE users SET username = ?, nric = ?, studentId = ?, userNo = ?, course = ? WHERE email = ?");
-        $update_stmt->bind_param("ssssss", $username, $nric, $studentId, $userNo, $course, $email);
-    }
+    $update_stmt = $conn->prepare("UPDATE users SET username = ?, course = ?, subject = ? WHERE studentId = ?");
+    $update_stmt->bind_param("ssss", $username, $course, $subject, $studentId);
 
     if ($update_stmt->execute()) {
-        $success = "Profile updated successfully!";
-        header("Refresh:0");
+        $_SESSION['success'] = "Profile updated successfully!";
+        header("Location: profile.php"); // Redirect to prevent form resubmission
+        exit();
     } else {
-        $error = "Error updating profile: " . $update_stmt->error;
+        $_SESSION['error'] = "Error updating profile: " . $update_stmt->error;
     }
 }
 
-
+// Handle Password Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
     $currentPassword = $_POST['current_password'];
     $newPassword = $_POST['new_password'];
     $confirmPassword = $_POST['confirm_password'];
 
     if ($newPassword !== $confirmPassword) {
-        $error = "Passwords do not match!";
+        $_SESSION['error'] = "Passwords do not match!";
     } else {
-        $pass_stmt = $conn->prepare("SELECT password FROM users WHERE email = ?");
-        $pass_stmt->bind_param("s", $email);
+        $pass_stmt = $conn->prepare("SELECT password FROM users WHERE studentId = ?");
+        $pass_stmt->bind_param("s", $studentId);
         $pass_stmt->execute();
         $pass_result = $pass_stmt->get_result();
         $row = $pass_result->fetch_assoc();
 
-        if ($row && $currentPassword === $row['password']) {
-            $update_pass_stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
-            $update_pass_stmt->bind_param("ss", $newPassword, $email);
+        if ($row && password_verify($currentPassword, $row['password'])) {
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+            $update_pass_stmt = $conn->prepare("UPDATE users SET password = ? WHERE studentId = ?");
+            $update_pass_stmt->bind_param("ss", $hashedPassword, $studentId);
 
             if ($update_pass_stmt->execute()) {
-                $success = "Password updated successfully!";
+                $_SESSION['success'] = "Password updated successfully!";
+                header("Location: profile.php");
+                exit();
             } else {
-                $error = "Error updating password.";
+                $_SESSION['error'] = "Error updating password.";
             }
         } else {
-            $error = "Current password is incorrect!";
+            $_SESSION['error'] = "Current password is incorrect!";
         }
     }
 }
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -219,76 +219,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
+<!-- Main Profile Page -->
+<div class="profile-container">
+    <!-- Left: Profile Update -->
+    <div class="profile-section">
+        <h2>Update Profile</h2>
 
-    <!-- Main Profile Page -->
-    <div class="profile-container">
-        <!-- Left: Profile Update -->
-        <div class="profile-section">
-            <h2>Update Profile</h2>
+        <?php if (isset($_SESSION['success'])) { echo "<p class='success'>{$_SESSION['success']}</p>"; unset($_SESSION['success']); } ?>
+        <?php if (isset($_SESSION['error'])) { echo "<p class='error'>{$_SESSION['error']}</p>"; unset($_SESSION['error']); } ?>
 
-            <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
-            <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
+        <form method="POST">
+            <label>Username:</label>
+            <input type="text" name="username" 
+                value="<?= isset($user['username']) ? htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') : '' ?>" required>
 
-            <form method="POST">
-                <label>Username:</label>
-                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
+            <label>Email (cannot be changed):</label>
+            <input type="email" 
+                value="<?= isset($user['email']) ? htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
 
-                <label>Email (cannot be changed):</label>
-                <input type="email" value="<?= htmlspecialchars($user['email']) ?>" disabled>
+            <label>ID (cannot be changed):</label>
+            <input type="text" 
+                value="<?= isset($user['studentId']) ? htmlspecialchars($user['studentId'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
 
-                <label>NRIC:</label>
-                <input type="text" name="nric" value="<?= htmlspecialchars($user['nric']) ?>" required>
+            <label>Course:</label>
+            <input type="text" name="course"
+                value="<?= isset($user['course']) ? htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') : '' ?>" required>
 
-                <?php if ($userType == 'Student') { ?>
-                    <label>Student ID:</label>
-                    <input type="text" name="studentId" value="<?= htmlspecialchars($user['studentId']) ?>" required>
-                <?php } else { ?>
-                    <label>Staff ID:</label>
-                    <input type="text" name="studentId" value="<?= htmlspecialchars($user['studentId']) ?>" required>
-                <?php } ?>
 
-                <label>User No:</label>
-                <input type="text" name="userNo" value="<?= htmlspecialchars($user['userNo']) ?>" required>
-
-                <label>Course:</label>
-                <input type="text" name="course" value="<?= htmlspecialchars($user['course']) ?>" disabled>
-
-                <?php if ($userType == 'Student') { ?>
-                    <label>Semester:</label>
-                    <input type="text" name="semester" value="<?= htmlspecialchars($user['semester']) ?>" disabled>
-                <?php } ?>
-
-                <button type="submit" name="update_profile">Update Profile</button>
-            </form>
-        </div>
-
-        <!-- Right: Password Update -->
-        <div class="password-section">
-            <h2>Change Password</h2>
-
-            <form method="POST">
-                <label>Current Password:</label>
-                <div class="password-container">
-                    <input type="password" name="current_password" id="current_password" required>
-                    <span class="toggle-password" onclick="togglePassword('current_password')">👁️</span>
-                </div>
-
-                <label>New Password:</label>
-                <div class="password-container">
-                    <input type="password" name="new_password" id="new_password" required>
-                    <span class="toggle-password" onclick="togglePassword('new_password')">👁️</span>
-                </div>
-
-                <label>Confirm New Password:</label>
-                <div class="password-container">
-                    <input type="password" name="confirm_password" id="confirm_password" required>
-                    <span class="toggle-password" onclick="togglePassword('confirm_password')">👁️</span>
-                </div>
-
-                <button type="submit" name="update_password">Update Password</button>
-            </form>
-        </div>
+            <button type="submit" name="update_profile">Update Profile</button>
+        </form>
     </div>
+
+    <!-- Right: Password Update -->
+    <div class="password-section">
+        <h2>Change Password</h2>
+
+        <form method="POST">
+            <label>Current Password:</label>
+            <div class="password-container">
+                <input type="password" name="current_password" id="current_password" required>
+                <span class="toggle-password" onclick="togglePassword('current_password')">👁️</span>
+            </div>
+
+            <label>New Password:</label>
+            <div class="password-container">
+                <input type="password" name="new_password" id="new_password" required>
+                <span class="toggle-password" onclick="togglePassword('new_password')">👁️</span>
+            </div>
+
+            <label>Confirm New Password:</label>
+            <div class="password-container">
+                <input type="password" name="confirm_password" id="confirm_password" required>
+                <span class="toggle-password" onclick="togglePassword('confirm_password')">👁️</span>
+            </div>
+
+            <button type="submit" name="update_password">Update Password</button>
+        </form>
+    </div>
+</div>
+
+
 
 </body>
 <script>
