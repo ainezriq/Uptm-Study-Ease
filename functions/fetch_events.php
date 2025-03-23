@@ -6,28 +6,29 @@ include '../auth/conn.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['email'])) {
+// Ensure user is logged in
+if (!isset($_SESSION['studentId'])) {
     echo json_encode(["error" => "User not logged in"]);
     exit;
 }
 
-$email = $_SESSION['email'];
+$studentId = $_SESSION['studentId'];
 
-$sql = "SELECT id, title, event_date FROM user_events WHERE email = ?";
+$sql = "SELECT id, title, event_date FROM user_events WHERE studentId = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $email);
+$stmt->bind_param("s", $studentId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $events = [];
 while ($row = $result->fetch_assoc()) {
-    $eventDate = date('Y-m-d\TH:i:s', strtotime($row['event_date'])); // Format: 2025-03-10T10:00:00
+    $eventDate = date('Y-m-d\TH:i:s', strtotime($row['event_date'])); // Format for FullCalendar
 
     $events[] = [
         'id' => $row['id'],
         'title' => $row['title'],
         'start' => $eventDate,
-        'color' => '#a67c52'
+        'color' => '#a67c52' // Brown color for events
     ];
 }
 

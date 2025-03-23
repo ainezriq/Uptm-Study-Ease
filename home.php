@@ -1,6 +1,10 @@
 <?php
 session_start();
-//var_dump($_SESSION); 
+if (!isset($_SESSION['studentId'])) {
+    echo "<script>alert('Session not set, please log in again'); window.location.href='index.php';</script>";
+    exit;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -137,43 +141,85 @@ session_start();
             });
         });
 
-        // ADD MORE SUBJECT FIELDS
-        $("#addSubject").click(function() {
-                $("#subjectList").append(`
-                    <div class="subject-entry">
-                        <select name="subjects[]" class="subject-dropdown">
-                            <option value="">Select Subject</option>
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Business Management">Business Management</option>
-                            <option value="Software Engineering">Software Engineering</option>
-                        </select>
-                        <button type="button" class="removeSubject">❌</button>
-                    </div>
-                `);
-            });
 
-            // REMOVE A SUBJECT FIELD
-            $(document).on("click", ".removeSubject", function() {
-                $(this).parent().remove();
-            });
 
-            // SAVE SUBJECTS TO DATABASE
-            $("#subjectForm").submit(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: 'auth/store_subjects.php',
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        alert(response);
-                    },
-                    error: function() {
-                        alert("Error saving subjects.");
-                    }
-                });
-            });
+    // Add More Subject Fields
+    $("#addSubject").click(function () {
+        $("#subjectList").append(`
+            <div class="subject-entry">
+                <select name="subjects[]" class="subject-dropdown">
+                    <option value="">Select Subject</option>
+                    <option value="ITC1083">Business Information Management Strategy</option>
+                    <option value="ITC2173">Enterprise Information Systems</option>
+                    <option value="ITC2193">Information Technology Essentials</option>
+                    <option value="ARC3043">Linux OS</option>
+                    <option value="SWC3403">Introduction to Mobile Application Development</option>
+                    <option value="FYP3024">Computing Project</option>
+                </select>
+                <button type="button" class="removeSubject">❌</button>
+            </div>
+        `);
+        updateDropdownOptions(); // Ensure dropdowns disable already selected subjects
+    });
+
+    // Remove Subject Field
+    $(document).on("click", ".removeSubject", function () {
+        $(this).parent().remove();
+        updateDropdownOptions(); // Re-enable options in remaining dropdowns
+    });
+
+    // Prevent Duplicate Subjects & Disable Selected Options
+    $(document).on("change", ".subject-dropdown", function () {
+        updateDropdownOptions();
+    });
+
+    function updateDropdownOptions() {
+        let selectedSubjects = $(".subject-dropdown").map(function () {
+            return $(this).val();
+        }).get().filter(value => value !== "");
+
+        $(".subject-dropdown option").prop("disabled", false);
+
+        selectedSubjects.forEach(subject => {
+            if (subject) {
+                $(".subject-dropdown").not(`[value="${subject}"]`).find(`option[value="${subject}"]`).prop("disabled", true);
+            }
+        });
+    }
+
+    // Save Subjects to Database
+    $("#subjectForm").submit(function (e) {
+        e.preventDefault();
+
+        let selectedSubjects = $(".subject-dropdown").map(function () {
+    return $(this).val();
+}).get().filter(value => value !== "");
+
+if (selectedSubjects.length === 0) {
+    alert("Please select at least one subject.");
+    return;
+}
+
+console.log($("#subjectForm").serialize());
+        $.ajax({
+            url: 'auth/store_subjects.php',
+            type: 'POST',
+            data: $("#subjectForm").serialize() + "&submit=true",
+contentType: "application/x-www-form-urlencoded",
+
+            success: function (response) {
+                console.log("Server Response:", response); // Debugging
+                alert(response);
+                location.reload(); // Refresh to update UI
+            },
+            error: function (xhr) {
+                console.error("AJAX Error:", xhr.responseText);
+                alert("Error saving subjects.");
+            }
+        });
+    });
+
+
 
 
         document.addEventListener("DOMContentLoaded", function() {
