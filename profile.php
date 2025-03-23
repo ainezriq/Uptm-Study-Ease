@@ -199,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         <!-- Desktop Navigation -->
         <div class="nav-links">
             <a href="home.php">Home</a>
-            <a href="inbox.php">Inbox</a>
+            <a href="inbox.php">Dashboard</a>
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
@@ -215,7 +215,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
     <!-- Mobile Dropdown Menu -->
     <div class="mobile-menu">
         <a href="home.php">Home</a>
-        <a href="inbox.php">Inbox</a>
+        <a href="inbox.php">Dashboard</a>
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>

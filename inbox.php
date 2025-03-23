@@ -79,7 +79,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inbox - Notices</title>
+    <title>Dashboard - Notices</title>
     <link rel="stylesheet" href="styles/style.css">
     <script>
         function openNoticeForm() {
@@ -102,7 +102,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
         </div>
         <div class="nav-links">
             <a href="home.php">Home</a>
-            <a href="inbox.php">Inbox</a>
+            <a href="inbox.php">Dashboard</a>
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
@@ -116,7 +116,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
     <!-- Mobile Dropdown Menu -->
     <div class="mobile-menu">
         <a href="home.php">Home</a>
-        <a href="inbox.php">Inbox</a>
+        <a href="inbox.php">Dashboard</a>
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
@@ -167,7 +167,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
         <div id="noticePopup" class="popup">
             <div class="popup-content">
                 <span class="close-btn" onclick="closeNoticeForm()">×</span>
-                <h3>Post Notice</h3>
+                <h3>Post Notice / Learning Materials</h3>
                 <form method="POST" enctype="multipart/form-data">
                     <textarea name="notice" placeholder="Enter notice..." required></textarea>
                     <label for="course">Send to:</label>
@@ -180,7 +180,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
                     <label for="file">Upload File (Optional):</label>
                     <input type="file" name="file" accept=".pdf, .docx, .jpg, .png, .txt">
 
-                    <button type="submit">Post Notice</button>
+                    <button type="submit">Post</button>
                 </form>
             </div>
         </div>
