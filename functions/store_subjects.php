@@ -6,9 +6,6 @@ session_start();
 header('Content-Type: application/json');
 include '../auth/conn.php';
 
-// Debugging: Log received POST data
-file_put_contents("debug.log", print_r($_POST, true));
-
 $response = ["status" => "error", "message" => "Unknown error"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -27,34 +24,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT subject_code FROM subjects WHERE studentId = ?");
+    // Get user ID from studentId
+    $stmt = $conn->prepare("SELECT id FROM users WHERE studentId = ?");
     $stmt->bind_param("s", $studentId);
+    $stmt->execute();
+    $userResult = $stmt->get_result();
+
+    if ($userResult->num_rows === 0) {
+        $response["message"] = "User not found.";
+        echo json_encode($response);
+        exit;
+    }
+
+    $user = $userResult->fetch_assoc();
+    $userId = $user['id'];
+    $stmt->close();
+
+    // Get existing enrollments
+    $stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
 
     $existingSubjects = [];
     while ($row = $result->fetch_assoc()) {
-        $existingSubjects[] = strtolower($row['subject_code']); // Case-insensitive comparison
+        $existingSubjects[] = $row['subject_id'];
     }
     $stmt->close();
 
     $insertedSubjects = 0;
-    foreach ($subjects as $subject) {
-        $subject = trim($subject);
-        if (!empty($subject) && !in_array(strtolower($subject), $existingSubjects)) {
-            $stmt = $conn->prepare("INSERT INTO subjects (subject_code, studentId) VALUES (?, ?)");
-            $stmt->bind_param("ss", $subject, $studentId);
-            if ($stmt->execute()) {
-                $insertedSubjects++;
-            } else {
-                file_put_contents("debug.log", "Error inserting subject: " . $stmt->error . "\n", FILE_APPEND);
+
+    foreach ($subjects as $subjectCode) {
+        $subjectCode = trim($subjectCode);
+
+        // Get subject ID
+        $stmt = $conn->prepare("SELECT id FROM subjects WHERE subject_code = ?");
+        $stmt->bind_param("s", $subjectCode);
+        $stmt->execute();
+        $subjectResult = $stmt->get_result();
+
+        if ($subjectResult->num_rows > 0) {
+            $subject = $subjectResult->fetch_assoc();
+            $subjectId = $subject['id'];
+
+            // Insert only if not already enrolled
+            if (!in_array($subjectId, $existingSubjects)) {
+                $stmt = $conn->prepare("INSERT INTO enrollments (user_id, subject_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $userId, $subjectId);
+                if ($stmt->execute()) {
+                    $insertedSubjects++;
+                }
+                $stmt->close();
             }
-            $stmt->close();
         }
     }
 
     if ($insertedSubjects > 0) {
-        $response = ["status" => "success", "message" => "$insertedSubjects subject(s) saved successfully."];
+        $response = ["status" => "success", "message" => "$insertedSubjects subject(s) added successfully."];
     } else {
         $response["message"] = "No new subjects were added.";
     }
