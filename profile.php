@@ -14,7 +14,7 @@ $studentId = $_SESSION['studentId'];
 $userType = $_SESSION['userType'];
 
 // Fetch user details using studentId (since id is not stored in session)
-$stmt = $conn->prepare("SELECT id, username, email, studentId, userType, course, subject FROM users WHERE studentId = ?");
+$stmt = $conn->prepare("SELECT id, username, email, studentId, userType, course FROM users WHERE studentId = ?");
 $stmt->bind_param("s", $studentId);  // Use "s" because studentId is a string
 $stmt->execute();
 $result = $stmt->get_result();
@@ -30,8 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     $course = $_POST['course'];
     $subject = $_POST['subject'];
 
-    $update_stmt = $conn->prepare("UPDATE users SET username = ?, course = ?, subject = ? WHERE studentId = ?");
-    $update_stmt->bind_param("ssss", $username, $course, $subject, $studentId);
+    $update_stmt = $conn->prepare("UPDATE users SET username = ?, course = ? WHERE studentId = ?");
+$update_stmt->bind_param("sss", $username, $course, $studentId);
+
 
     if ($update_stmt->execute()) {
         $_SESSION['success'] = "Profile updated successfully!";
