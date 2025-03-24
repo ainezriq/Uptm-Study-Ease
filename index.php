@@ -50,9 +50,9 @@
             <select name="course" required>
                 <option value="" disabled selected>Select Course</option>
                 <option value="CC101 - Diploma in Computer Science">CC101 - Diploma in Computer Science</option>
-                <option value="CC102 - Diploma in Cyber Security">CC102 - Diploma in Cyber Security</option>
-                <option value="CC103 - Diploma in Early Childhood Education">CC103 - Diploma in Early Childhood Education</option>
-                <option value="CC104 - Diploma in Human Resource">CC104 - Diploma in Human Resource</option>
+                <option value="CM201 - Bachelor of Art in 3D Animation and Digital Media (Honours)">CM201 - Bachelor of Art in 3D Animation and Digital Media (HONOURS)</option>
+                <option value="CT204 - Bachelor of Information Techonolgy (Honours) in Computer Application Development">CT204 - Bachelor of Information Techonolgy (Honours) in Computer Application Development</option>
+                <option value="CT206 - Bachelor of Information Techonolgy (Honours) in Cyber Security">CT206 - Bachelor of Information Techonolgy (Honours) in Cyber Security</option>
             </select>
             <br>
             <!-- User Type Selection -->
