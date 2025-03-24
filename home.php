@@ -27,6 +27,7 @@ if (!isset($_SESSION['studentId'])) {
             <span class="website-name">UPTM Study Ease</span>
         </div>
         <div class="nav-links">
+        <span class="welcome-text">Welcome, <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Student'; ?></span>
             <a href="home.php">Home</a>
             <a href="inbox.php">Dashboard</a>
             <a href="profile.php">Profile</a>

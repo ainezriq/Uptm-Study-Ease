@@ -144,7 +144,7 @@ select {
     gap: 20px;
 }
 
-.navbar .nav-links a {
+.navbar .nav-links a .welcome-text{
     color: white;
     text-decoration: none;
     font-size: 18px;

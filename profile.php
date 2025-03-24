@@ -241,9 +241,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
             <input type="text" 
                 value="<?= isset($user['studentId']) ? htmlspecialchars($user['studentId'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
 
-            <label>Course:</label>
+            <label>Course (cannot be changed):</label>
             <input type="text" name="course"
-                value="<?= isset($user['course']) ? htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') : '' ?>" required>
+                value="<?= isset($user['course']) ? htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
 
 
             <button type="submit" name="update_profile">Update Profile</button>
