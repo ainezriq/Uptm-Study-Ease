@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
 
-        // Insert user without hashing password
+        
         $stmt = $conn->prepare("INSERT INTO users (username, email, studentId, password, userType, course) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssss", $username, $email, $studentId, $password, $userType, $course);
 

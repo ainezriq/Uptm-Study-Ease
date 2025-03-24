@@ -164,26 +164,26 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
         <button class="floating-btn" onclick="openNoticeForm()">+</button>
 
         <!-- Popup Form for Adding Notices -->
-        <div id="noticePopup" class="popup">
-            <div class="popup-content">
-                <span class="close-btn" onclick="closeNoticeForm()">×</span>
-                <h3>Post Notice / Learning Materials</h3>
-                <form method="POST" enctype="multipart/form-data">
-                    <textarea name="notice" placeholder="Enter notice..." required></textarea>
-                    <label for="course">Send to:</label>
-                    <select name="course">
-                        <option value="All">All Courses</option>
-                        <?php foreach ($courses as $course): ?>
-                            <option value="<?= htmlspecialchars($course['course']) ?>"><?= htmlspecialchars($course['course']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <label for="file">Upload File (Optional):</label>
-                    <input type="file" name="file" accept=".pdf, .docx, .jpg, .png, .txt">
+<div id="noticePopup" class="popup">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closeNoticeForm()">×</span>
+        <h3>Post Notice / Learning Materials</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <textarea name="notice" placeholder="Enter notice..." required></textarea>
+            <label for="subject">Send to:</label>
+            <select name="subject">
+                <option value="All">All Subjects</option>
+                <?php foreach ($subjects as $subject_code): ?>
+                    <option value="<?= htmlspecialchars($subject_code) ?>"><?= htmlspecialchars($subject_code) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <label for="file">Upload File (Optional):</label>
+            <input type="file" name="file" accept=".pdf, .docx, .jpg, .png, .txt">
 
-                    <button type="submit">Post</button>
-                </form>
-            </div>
-        </div>
+            <button type="submit">Post</button>
+        </form>
+    </div>
+</div>
 
     <?php endif; ?>
 

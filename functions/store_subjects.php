@@ -27,14 +27,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT subject_name FROM subjects WHERE studentId = ?");
+    $stmt = $conn->prepare("SELECT subject_code FROM subjects WHERE studentId = ?");
     $stmt->bind_param("s", $studentId);
     $stmt->execute();
     $result = $stmt->get_result();
 
     $existingSubjects = [];
     while ($row = $result->fetch_assoc()) {
-        $existingSubjects[] = strtolower($row['subject_name']); // Case-insensitive comparison
+        $existingSubjects[] = strtolower($row['subject_code']); // Case-insensitive comparison
     }
     $stmt->close();
 
@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     foreach ($subjects as $subject) {
         $subject = trim($subject);
         if (!empty($subject) && !in_array(strtolower($subject), $existingSubjects)) {
-            $stmt = $conn->prepare("INSERT INTO subjects (subject_name, studentId) VALUES (?, ?)");
+            $stmt = $conn->prepare("INSERT INTO subjects (subject_code, studentId) VALUES (?, ?)");
             $stmt->bind_param("ss", $subject, $studentId);
             if ($stmt->execute()) {
                 $insertedSubjects++;

@@ -144,12 +144,20 @@ select {
     gap: 20px;
 }
 
-.navbar .nav-links a .welcome-text{
+.navbar .nav-links a {
     color: white;
     text-decoration: none;
     font-size: 18px;
     transition: color 0.3s;
 }
+
+
+    .welcome-text {
+        font-weight: bold;
+        margin-right: 50px;
+        color: #fff;
+    }
+    
 
 .navbar .nav-links a:hover {
     color: #E5D3B3;
@@ -195,8 +203,8 @@ select {
 
 .calendar-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: right;
+    align-items: right;
     padding: 20px;
 }
 
