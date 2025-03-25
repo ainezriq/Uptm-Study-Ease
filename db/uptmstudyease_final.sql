@@ -19,9 +19,6 @@ SET NAMES utf8mb4;
 CREATE TABLE `user_events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` varchar(255) NOT NULL,
-  `userId` varchar(255) NOT NULL,
-  `userId` varchar(255) NOT NULL,
-
   `title` varchar(255) NOT NULL,
   `event_date` datetime NOT NULL,
   PRIMARY KEY (`id`),
