@@ -201,7 +201,9 @@ if (isset($_SESSION['email'])) {
         <a href="logout.php">Logout</a>
     </div>
 
-    <div class="notifications">
+    <div class="content-container">
+        <div class="notifications">
+
         <h2>Notices</h2>
         <?php if (empty($notices)): ?>
             <p>No new notices.</p>
@@ -216,7 +218,9 @@ if (isset($_SESSION['email'])) {
             </ul>
         <?php endif; ?>
     </div>
-    <div class="calendar-container">
+        </div>
+        <div class="calendar-container">
+
 
         <div id="calendar"></div>
     </div>

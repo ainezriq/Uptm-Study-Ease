@@ -47,10 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 
     // Insert notice into the database if there is content
     if (!empty($notice)) {
-        $stmt = $conn->prepare("INSERT INTO notices (email, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO notices (student_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
 
 
-        $stmt->bind_param("ssss", $userEmail, $course, $notice, $filePath);
+
+        $stmt->bind_param("ssss", $userId, $course, $notice, $filePath);
+
         if ($stmt->execute()) {
             header("Location: inbox.php");
             exit();

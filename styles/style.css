@@ -37,6 +37,17 @@
     color: #666;
     font-size: 0.9em;
 }
+
+.content-container {
+    display: flex; /* Use flexbox for layout */
+    gap: 10px; /* Reduced space between notices and calendar */
+
+}
+
+.calendar-container {
+    flex-grow: 1; /* Allow calendar to take remaining space */
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -151,14 +162,6 @@ select {
     transition: color 0.3s;
 }
 
-
-    .welcome-text {
-        font-weight: bold;
-        margin-right: 50px;
-        color: #fff;
-    }
-    
-
 .navbar .nav-links a:hover {
     color: #E5D3B3;
 }
@@ -201,17 +204,11 @@ select {
     background-color: #E5D3B3;
 }
 
-.calendar-container {
-    display: flex;
-    justify-content: right;
-    align-items: right;
-    padding: 20px;
-}
-
 #calendar {
     width: 90%;
     max-width: 700px;
-    margin-top: 50px; 
+    margin-top: 20px; /* Reduced top margin for calendar */
+
     padding: 15px;
     border-radius: 10px;
     border: 2px solid #664229;
@@ -289,68 +286,6 @@ select {
     cursor: pointer;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     transition: background 0.3s;
-}
-
-.content-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px;
-    gap: 20px;
-}
-
-.subject-container {
-    width: 300px;
-    min-height: 250px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.subject-container h2 {
-    font-size: 18px;
-    color: #333;
-    text-align: center;
-}
-
-.subject-container select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    outline: none;
-}
-
-.subject-button {
-    padding: 10px;
-    background-color: #664229;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.subject-button:hover {
-    background-color: #987554;
-}
-
-.calendar-container {
-    flex-grow: 1;
-}
-
-
-
-
-
-.floating-btn:hover {
-    background-color: #664229;
 }
 
 .popup {
