@@ -6,7 +6,7 @@ session_start();
 header('Content-Type: application/json');
 include '../auth/conn.php';
 
-if (!isset($_SESSION['studentId'])) {
+if (!isset($_SESSION['userId'])) {
     echo json_encode(["error" => "User not logged in"]);
     exit;
 }
@@ -22,16 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Check if studentId exists in users table
+    // Check if userId exists in users table
     $check_sql = "SELECT userId FROM users WHERE userId = ?"; // Updated query
 
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $studentId);
+    $check_stmt->bind_param("s", $userId);
+
     $check_stmt->execute();
     $result = $check_stmt->get_result();
 
     if ($result->num_rows === 0) {
-        echo json_encode(["error" => "Invalid studentId"]);
+        echo json_encode(["error" => "Invalid userId"]);
         exit;
     }
     $check_stmt->close();
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sql = "INSERT INTO user_events (userId, title, event_date) VALUES (?, ?, ?)"; // Updated query
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $studentId, $title, $event_date);
+    $stmt->bind_param("sss", $userId, $title, $event_date);
 
     if ($stmt->execute()) {
         echo json_encode(["success" => "Event added successfully", "id" => $stmt->insert_id]);

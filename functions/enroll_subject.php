@@ -5,8 +5,7 @@ include '../auth/conn.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
-
-    echo json_encode(["status" => "error", "message" => "Student not authenticated"]);
+    echo json_encode(["status" => "error", "message" => "User not authenticated"]);
     exit;
 }
 
@@ -20,11 +19,11 @@ if (!$subjectId || !is_numeric($subjectId)) {
     exit;
 }
 
-// Get user ID from studentId
+// Get user ID from userId
 $query = "SELECT id FROM users WHERE userId = ?"; // Updated query
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $studentId);
+$stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
@@ -36,7 +35,7 @@ if (!$user) {
     exit;
 }
 
-$userId = $user['id'];
+$userId = $user['id']; // Changed from studentId to userId
 
 // Check if the subject exists
 $query = "SELECT id FROM subjects WHERE id = ?";
@@ -51,11 +50,11 @@ if ($result->num_rows === 0) {
     exit;
 }
 
-// Check if the student is already enrolled
-$query = "SELECT id FROM enrollments WHERE user_id = ? AND subject_id = ?"; // Updated query
+// Check if the user is already enrolled
+$query = "SELECT id FROM enrollments WHERE user_id = ? AND subject_code = ?"; // Updated query
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("ii", $userId, $subjectId);
+$stmt->bind_param("is", $userId, $subjectId);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -65,18 +64,18 @@ if ($result->num_rows > 0) {
     exit;
 }
 
-error_log("Attempting to enroll student: $userId in subject: $subjectId");
-// Enroll the student
+error_log("Attempting to enroll user: $userId in subject: $subjectId");
+// Enroll the user
 
-$query = "INSERT INTO enrollments (user_id, subject_id) VALUES (?, ?)";
+$query = "INSERT INTO enrollments (user_id, subject_code) VALUES (?, ?)";
+
 $stmt = $conn->prepare($query);
-$stmt->bind_param("ii", $userId, $subjectId);
+$stmt->bind_param("is", $userId, $subjectId);
 
 if ($stmt->execute()) {
     echo json_encode(["status" => "success", "message" => "Enrollment successful"]);
 } else {
     echo json_encode(["status" => "error", "message" => "Database error: " . $stmt->error]);
-
 }
 
 $stmt->close();

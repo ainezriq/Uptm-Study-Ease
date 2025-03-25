@@ -8,18 +8,17 @@ header('Content-Type: application/json');
 
 // Ensure user is logged in
 if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
-
     echo json_encode(["error" => "User not logged in"]);
     exit;
 }
 
 $userId = $_SESSION['userId']; // Changed from studentId to userId
 
-
 $sql = "SELECT id, title, event_date FROM user_events WHERE userId = ?"; // Updated query
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $studentId);
+$stmt->bind_param("s", $userId);
+
 $stmt->execute();
 $result = $stmt->get_result();
 

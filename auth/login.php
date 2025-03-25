@@ -42,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     } elseif (isset($_POST['login'])) {
         $userId = trim($_POST['userId']); // Changed from studentId to userId
+        echo "Debug: User ID entered: " . $userId; // Debugging statement
         
         $stmt = $conn->prepare("SELECT password, userType, course FROM users WHERE userId = ?"); // Updated query
         $stmt->bind_param("s", $userId);
@@ -52,6 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->num_rows > 0) {
             $stmt->bind_result($db_password, $userType, $course);
             $stmt->fetch();
+            echo "Debug: Password entered: " . $password; // Debugging statement
             if ($password === $db_password) { // Direct password check
                 $_SESSION['userId'] = $userId; // Updated session variable
                 $_SESSION['userType'] = $userType;

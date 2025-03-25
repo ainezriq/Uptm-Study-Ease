@@ -27,7 +27,7 @@
 
         <!-- Login Form -->
         <form id="login-form" class="login-form" action="auth/login.php" method="POST">
-            <input type="text" name="studentId" placeholder="Student ID" required>
+            <input type="text" name="userId" placeholder="User ID" required> <!-- Changed from studentId to userId -->
             <br>
             <input type="password" name="password" placeholder="Password" required>
             <br>
@@ -44,7 +44,7 @@
             <input type="password" name="password" placeholder="Password" required>
             <br>
             <input type="text" name="studentId" placeholder="Student ID" required>
-<br>
+            <br>
 
             <!-- Course Select -->
             <select name="course" required>

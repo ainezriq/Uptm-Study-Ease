@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 25, 2025 at 08:02 PM
+-- Generation Time: Mar 25, 2025 at 10:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,8 +30,19 @@ SET time_zone = "+00:00";
 CREATE TABLE `enrollments` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL
+  `subject_code` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `enrollments`
+--
+
+INSERT INTO `enrollments` (`id`, `user_id`, `subject_code`) VALUES
+(1, 0, 'ITC1083'),
+(2, 0, 'ITC2193'),
+(3, 0, 'ITC2193'),
+(4, 0, 'SWC3403'),
+(5, 0, 'FYP3024');
 
 -- --------------------------------------------------------
 
@@ -45,7 +56,7 @@ CREATE TABLE `notices` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `file_path` varchar(255) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `subject_id` int(11) NOT NULL
+  `subject_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -53,9 +64,7 @@ CREATE TABLE `notices` (
 --
 
 INSERT INTO `notices` (`id`, `content`, `created_at`, `file_path`, `user_id`, `subject_id`) VALUES
-(9, 'Exam', '2025-03-07 06:04:38', 'uploads/67ca8c76d5ba7-IzzrieqIllhanPahlaviBinMohammadRedhaPahlavi(AM2311015184).pdf', 3, 0),
-(12, 'This is a test', '2025-03-07 18:28:20', '', 3, 0),
-(16, 'SWC3404', '2025-03-24 13:39:50', 'uploads/67e160a68172c-labTask_Ain(1).pdf', 3, 0);
+(4, 'FINAL PROJECT INSTRUCTIONS EXAMPLE', '2025-03-25 21:36:54', 'uploads/67e321f658f2d-ITC1083_01_FINAL_PROJECT_AIN.pdf', NULL, 'ITC1083');
 
 -- --------------------------------------------------------
 
@@ -65,8 +74,21 @@ INSERT INTO `notices` (`id`, `content`, `created_at`, `file_path`, `user_id`, `s
 
 CREATE TABLE `subjects` (
   `id` int(11) NOT NULL,
-  `subject_code` varchar(255) NOT NULL
+  `subject_id` varchar(255) NOT NULL,
+  `subject_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subjects`
+--
+
+INSERT INTO `subjects` (`id`, `subject_id`, `subject_name`) VALUES
+(1, 'ITC1083', 'Business Information Management Strategy'),
+(2, 'ITC2173', 'Enterprise Information Systems'),
+(3, 'ITC2193', 'Information Technology Essentials'),
+(4, 'ARC3043', 'Linux OS'),
+(5, 'SWC3403', 'Introduction to Mobile Application Development'),
+(6, 'FYP3024', 'Computing Project');
 
 -- --------------------------------------------------------
 
@@ -79,7 +101,7 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `studentId` varchar(255) NOT NULL,
+  `userId` varchar(255) NOT NULL,
   `userType` enum('Lecturer','Student') NOT NULL,
   `course` varchar(50) NOT NULL,
   `subjects` text DEFAULT NULL
@@ -89,7 +111,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `studentId`, `userType`, `course`, `subjects`) VALUES
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `userId`, `userType`, `course`, `subjects`) VALUES
 (1, 'izzrieq', 'izzrieqilhan@gmail.com', 'hi', 'am123456789', 'Student', 'Computer Science', NULL),
 (2, 'adminCC101', 'cc101cood@gmail.com', 'test', '232211', 'Lecturer', 'Computer Science', NULL),
 (3, 'Adam', 'adam@gmail.com', 'adam123', '123456789', 'Student', 'Cyber Security', NULL),
@@ -105,24 +127,20 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `studentId`, `userTy
 
 CREATE TABLE `user_events` (
   `id` int(11) NOT NULL,
-  `studentId` varchar(255) NOT NULL,
+  `userId` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `event_date` date NOT NULL,
-  `subject_id` int(11) DEFAULT NULL
+  `event_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_events`
 --
 
-INSERT INTO `user_events` (`id`, `studentId`, `title`, `event_date`, `subject_id`) VALUES
-(10, 'izzrieqilhan@gmail.com', 'test', '2025-03-20', NULL),
-(22, 'AM2307013916', 'kami', '2025-03-19', NULL),
-(23, 'AM2307013916', 'budak', '2025-03-27', NULL),
-(24, 'AM2307013916', 'genz', '2025-04-04', NULL),
-(25, 'FP12345', 'meeting fcom', '2025-03-19', NULL),
-(26, 'FP12345', 'iftar uptm', '2025-03-21', NULL),
-(27, 'FP12345', 'fyp student', '2025-03-26', NULL);
+INSERT INTO `user_events` (`id`, `userId`, `title`, `event_date`) VALUES
+(1, 'am123456789', 'Math Exam', '2025-04-01 10:00:00'),
+(2, '232211', 'Lecture on Database Systems', '2025-04-02 14:00:00'),
+(3, 'AM2307013916', 'BUDAK', '2025-03-12 00:00:00'),
+(4, 'AM2307013916', 'GENZ', '2025-03-20 00:00:00');
 
 --
 -- Indexes for dumped tables
@@ -134,7 +152,7 @@ INSERT INTO `user_events` (`id`, `studentId`, `title`, `event_date`, `subject_id
 ALTER TABLE `enrollments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `subject_id` (`subject_id`);
+  ADD KEY `subject_code` (`subject_code`);
 
 --
 -- Indexes for table `notices`
@@ -148,7 +166,7 @@ ALTER TABLE `notices`
 --
 ALTER TABLE `subjects`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `subject_code` (`subject_code`);
+  ADD UNIQUE KEY `subject_code` (`subject_id`);
 
 --
 -- Indexes for table `users`
@@ -156,15 +174,14 @@ ALTER TABLE `subjects`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `studentId` (`studentId`);
+  ADD UNIQUE KEY `userId` (`userId`);
 
 --
 -- Indexes for table `user_events`
 --
 ALTER TABLE `user_events`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `email` (`studentId`),
-  ADD KEY `fk_subject` (`subject_id`);
+  ADD KEY `userId` (`userId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -174,19 +191,19 @@ ALTER TABLE `user_events`
 -- AUTO_INCREMENT for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `notices`
 --
 ALTER TABLE `notices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -198,7 +215,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_events`
 --
 ALTER TABLE `user_events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -208,22 +225,13 @@ ALTER TABLE `user_events`
 -- Constraints for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `notices`
---
-ALTER TABLE `notices`
-  ADD CONSTRAINT `notices_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `notices_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `notices_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`subject_code`) REFERENCES `subjects` (`subject_id`);
 
 --
 -- Constraints for table `user_events`
 --
 ALTER TABLE `user_events`
-  ADD CONSTRAINT `fk_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `user_events_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

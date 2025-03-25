@@ -4,15 +4,13 @@ $userType = $_SESSION['userType'] ?? 'Student'; // Default to Student
 $userEmail = $_SESSION['email'] ?? ''; // Get logged-in user email
 $userCourse = $_SESSION['course'] ?? 'All'; // Get student's course (assuming it's stored in session)
 
-
 // Database Connection
 include 'auth/conn.php';
 
 // Handle Notice Submission (Only for Lecturer)
-// Handle Notice Submission (Only for Lecturer)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
     $notice = $_POST['notice'] ?? '';
-    $course = $_POST['course'] ?? 'All'; // Default to "All" if no course is selected
+    $subject_id = $_POST['subject_id'] ?? ''; // Get selected subject_id
     $filePath = ''; // Default file path to empty
 
     // Check if a file is uploaded
@@ -47,13 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 
     // Insert notice into the database if there is content
     if (!empty($notice)) {
-    $stmt = $conn->prepare("INSERT INTO notices (user_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
-
-
-
-
-        $stmt->bind_param("ssss", $user_id, $course, $notice, $filePath);
-
+        $stmt = $conn->prepare("INSERT INTO notices (user_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->bind_param("isss", $userId, $subject_id, $notice, $filePath);
 
         if ($stmt->execute()) {
             header("Location: inbox.php");
@@ -66,13 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 
 // Fetch Notices based on User Type
 if ($userType == 'Student') {
-    // Fetch notices for the student's course or for "All" courses
-    $stmt = $conn->prepare("SELECT * FROM notices WHERE subject_id = ? OR subject_id = 'All' ORDER BY created_at DESC");
-    $stmt->bind_param("s", $userCourse);
+    // Fetch notices for the subjects the student is enrolled in
+    $stmt = $conn->prepare("SELECT n.* FROM notices n 
+                             JOIN enrollments e ON n.subject_id = e.subject_id 
+                             WHERE e.user_id = ? 
+                             ORDER BY n.created_at DESC");
+    $stmt->bind_param("i", $userId);
 
-
-
-    $stmt->bind_param("s", $userCourse);
 } else {
     // Lecturers can see all notices
     $stmt = $conn->prepare("SELECT * FROM notices ORDER BY created_at DESC");
@@ -82,6 +75,9 @@ $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Fetch Course List for Lecturer
 $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT NULL")->fetch_all(MYSQLI_ASSOC);
+
+// Fetch Subjects for Lecturer
+$subjects = $conn->query("SELECT subject_id, subject_name FROM subjects")->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -141,7 +137,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
             <?php foreach ($notices as $notice): ?>
                 <div class="notice">
                     <p><?= htmlspecialchars($notice['content']) ?></p>
-                    <small>Posted on: <?= $notice['created_at'] ?> | Subject: <?= $notice['subject'] ?></small>
+                    <small>Posted on: <?= $notice['created_at'] ?> | Subject: <?= $notice['subject_id'] ?></small>
 
                     <?php if (!empty($notice['file_path'])): ?>
                         <div class="file-link">
@@ -166,8 +162,6 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
                 <p>No notices available.</p>
             <?php endif; ?>
         </div>
-
-
     </div>
 
     <!-- Floating + Button for Lecturers -->
@@ -175,27 +169,26 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
         <button class="floating-btn" onclick="openNoticeForm()">+</button>
 
         <!-- Popup Form for Adding Notices -->
-<div id="noticePopup" class="popup">
-    <div class="popup-content">
-        <span class="close-btn" onclick="closeNoticeForm()">×</span>
-        <h3>Post Notice / Learning Materials</h3>
-        <form method="POST" enctype="multipart/form-data">
-            <textarea name="notice" placeholder="Enter notice..." required></textarea>
-            <label for="subject">Send to:</label>
-            <select name="subject">
-                <option value="All">All Subjects</option>
-                <?php foreach ($subjects as $subject_code): ?>
-                    <option value="<?= htmlspecialchars($subject_code) ?>"><?= htmlspecialchars($subject_code) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <label for="file">Upload File (Optional):</label>
-            <input type="file" name="file" accept=".pdf, .docx, .jpg, .png, .txt">
+        <div id="noticePopup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeNoticeForm()">×</span>
+                <h3>Post Notice / Learning Materials</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <textarea name="notice" placeholder="Enter notice..." required></textarea>
+                    <label for="subject">Select Subject:</label>
+                    <select name="subject_id" required>
+                        <option value="">Select a subject</option>
+                        <?php foreach ($subjects as $subject): ?>
+                            <option value="<?= htmlspecialchars($subject['subject_id'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($subject['subject_name'], ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <label for="file">Upload File (Optional):</label>
+                    <input type="file" name="file" accept=".pdf, .docx, .jpg, .png, .txt">
 
-            <button type="submit">Post</button>
-        </form>
-    </div>
-</div>
-
+                    <button type="submit">Post</button>
+                </form>
+            </div>
+        </div>
     <?php endif; ?>
 
     <script>

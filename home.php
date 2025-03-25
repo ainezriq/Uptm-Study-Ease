@@ -4,13 +4,10 @@ include 'auth/conn.php'; // Include database connection
 
 // Fetch notices for the student
 $notices = [];
-if (isset($_SESSION['email'])) {
-    $userEmail = $_SESSION['email'];
-$stmt = $conn->prepare("SELECT * FROM notices WHERE user_id = ? ORDER BY created_at DESC"); // Updated query
-$stmt->bind_param("i", $userId); // Changed from email to userId
-
-
-    $stmt->bind_param("s", $userEmail);
+if (isset($_SESSION['userId'])) {
+    $userId = $_SESSION['userId'];
+    $stmt = $conn->prepare("SELECT * FROM notices WHERE user_id = ? ORDER BY created_at DESC");
+    $stmt->bind_param("i", $userId);
     $stmt->execute();
     $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }

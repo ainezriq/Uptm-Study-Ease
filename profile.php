@@ -5,16 +5,16 @@ include 'auth/conn.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-if (!isset($_SESSION['studentId'])) {
+if (!isset($_SESSION['userId'])) {
     header("Location: login.php");
     exit();
 }
 
-$studentId = $_SESSION['studentId'];
+$userId = $_SESSION['userId'];
 
 // Fetch user details
-$stmt = $conn->prepare("SELECT id, username, email, studentId, userType, course FROM users WHERE studentId = ?");
-$stmt->bind_param("s", $studentId);
+$stmt = $conn->prepare("SELECT id, username, email, userId, userType, course FROM users WHERE userId = ?");
+$stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
@@ -24,21 +24,21 @@ if (!$user) {
 }
 
 // Fetch enrolled subjects
-$subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE user_id = ?");
-$subjects_stmt->bind_param("s", $studentId);
+$subjects_stmt = $conn->prepare("SELECT subject_code FROM enrollments WHERE user_id = ?");
+$subjects_stmt->bind_param("s", $userId);
 $subjects_stmt->execute();
 $subjects_result = $subjects_stmt->get_result();
 $enrolled_subjects = [];
 while ($row = $subjects_result->fetch_assoc()) {
-    $enrolled_subjects[] = $row['subject_id'];
+    $enrolled_subjects[] = $row['subject_code'];
 }
 
 // Handle Profile Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     $username = $_POST['username'];
     
-    $update_stmt = $conn->prepare("UPDATE users SET username = ? WHERE studentId = ?");
-    $update_stmt->bind_param("ss", $username, $studentId);
+    $update_stmt = $conn->prepare("UPDATE users SET username = ? WHERE userId = ?");
+    $update_stmt->bind_param("ss", $username, $userId);
 
     if ($update_stmt->execute()) {
         $_SESSION['success'] = "Profile updated successfully!";
@@ -53,11 +53,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
     $selected_subjects = $_POST['subjects'] ?? [];
     
-    $conn->query("DELETE FROM enrollments WHERE user_id = '$studentId'");
-    
-    foreach ($selected_subjects as $subject_id) {
-        $insert_stmt = $conn->prepare("INSERT INTO enrollments (user_id, subject_id) VALUES (?, ?)");
-        $insert_stmt->bind_param("ss", $studentId, $subject_id);
+    $conn->query("DELETE FROM enrollments WHERE user_id = '$userId'");
+
+    foreach ($selected_subjects as $subject_code) {
+        $insert_stmt = $conn->prepare("INSERT INTO enrollments (user_id, subject_code) VALUES (?, ?)");
+        $insert_stmt->bind_param("ss", $userId, $subject_code);
         if (!$insert_stmt->execute()) {
             error_log("Error inserting subject: " . $insert_stmt->error);
         }
@@ -214,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
                 <input type="email" value="<?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
                 <label>ID (cannot be changed):</label>
-                <input type="text" value="<?= htmlspecialchars($user['studentId'], ENT_QUOTES, 'UTF-8') ?>" readonly>
+                <input type="text" value="<?= htmlspecialchars($user['userId'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
                 <label>Course:</label>
                 <input type="text" value="<?= htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') ?>" readonly>
@@ -228,12 +228,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
             <form method="POST">
                 <label>Subjects:</label>
                 <select name="subjects[]" multiple>
-                    <option value="ITC1083" <?= in_array("ITC1083", $enrolled_subjects) ? "selected" : "" ?>>ITC1083 - Business Information Management Strategy</option>
-                    <option value="ITC2173" <?= in_array("ITC2173", $enrolled_subjects) ? "selected" : "" ?>>ITC2173 - Enterprise Information Systems</option>
-                    <option value="ITC2193" <?= in_array("ITC2193", $enrolled_subjects) ? "selected" : "" ?>>ITC2193 - Information Technology Essentials</option>
-                    <option value="ARC3043" <?= in_array("ARC3043", $enrolled_subjects) ? "selected" : "" ?>>ARC3043 - Linux OS</option>
-                    <option value="SWC3403" <?= in_array("SWC3403", $enrolled_subjects) ? "selected" : "" ?>>SWC3403 - Introduction to Mobile Application Development</option>
-                    <option value="FYP3024" <?= in_array("FYP3024", $enrolled_subjects) ? "selected" : "" ?>>FYP3024 - Computing Project</option>
+                    <?php
+                    $subject_codes = ["ITC1083", "ITC2173", "ITC2193", "ARC3043", "SWC3403", "FYP3024"];
+                    foreach ($subject_codes as $subject_code) {
+                        $stmt = $conn->prepare("SELECT subject_name FROM subjects WHERE subject_code = ?");
+                        $stmt->bind_param("s", $subject_code);
+                        $stmt->execute();
+                        $subject_result = $stmt->get_result();
+                        $subject = $subject_result->fetch_assoc();
+                        $selected = in_array($subject_code, $enrolled_subjects) ? "selected" : "";
+                        echo "<option value=\"$subject_code\" $selected>$subject_code - " . htmlspecialchars($subject['subject_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+                    }
+                    ?>
                 </select>
                 <button type="submit" name="update_subjects">Update Subjects</button>
             </form>
