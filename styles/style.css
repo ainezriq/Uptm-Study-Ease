@@ -1,42 +1,42 @@
-/* General Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+/* Add your styles here */
+
+.notifications {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 20px 0;
 }
 
-.login-body {
-    background-color: #f7f7f7;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.login-container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 800px; 
-    padding: 30px;
-    text-align: center;
-}
-
-h1 {
+.notifications h2 {
+    margin: 0 0 10px;
+    font-size: 1.5em;
     color: #333;
-    margin-bottom: 20px;
-    font-size: 28px;
 }
 
-form {
-    display: flex;
-    flex-direction: column; 
-    justify-content: center;
-    gap: 10px;
+.notifications ul {
+    list-style-type: none;
+    padding: 0;
 }
 
+.notifications li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.notifications li:last-child {
+    border-bottom: none;
+}
+
+.notifications strong {
+    color: #007bff;
+}
+
+.notifications small {
+    display: block;
+    color: #666;
+    font-size: 0.9em;
+}
 input[type="text"],
 input[type="email"],
 input[type="password"],

@@ -11,11 +11,10 @@ if (!isset($_SESSION['studentId'])) {
 }
 
 $studentId = $_SESSION['studentId'];
-$userType = $_SESSION['userType'];
 
-// Fetch user details using studentId (since id is not stored in session)
+// Fetch user details
 $stmt = $conn->prepare("SELECT id, username, email, studentId, userType, course FROM users WHERE studentId = ?");
-$stmt->bind_param("s", $studentId);  // Use "s" because studentId is a string
+$stmt->bind_param("s", $studentId);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
@@ -24,65 +23,53 @@ if (!$user) {
     die("User data not found.");
 }
 
+// Fetch enrolled subjects
+$subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE user_id = ?");
+$subjects_stmt->bind_param("s", $studentId);
+$subjects_stmt->execute();
+$subjects_result = $subjects_stmt->get_result();
+$enrolled_subjects = [];
+while ($row = $subjects_result->fetch_assoc()) {
+    $enrolled_subjects[] = $row['subject_id'];
+}
+
 // Handle Profile Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     $username = $_POST['username'];
-    $course = $_POST['course'];
-    $subject = $_POST['subject'];
-
-    $update_stmt = $conn->prepare("UPDATE users SET username = ?, course = ? WHERE studentId = ?");
-$update_stmt->bind_param("sss", $username, $course, $studentId);
-
+    
+    $update_stmt = $conn->prepare("UPDATE users SET username = ? WHERE studentId = ?");
+    $update_stmt->bind_param("ss", $username, $studentId);
 
     if ($update_stmt->execute()) {
         $_SESSION['success'] = "Profile updated successfully!";
-        header("Location: profile.php"); // Redirect to prevent form resubmission
+        header("Location: profile.php");
         exit();
     } else {
         $_SESSION['error'] = "Error updating profile: " . $update_stmt->error;
     }
 }
 
-// Handle Password Update
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
-    $currentPassword = $_POST['current_password'];
-    $newPassword = $_POST['new_password'];
-    $confirmPassword = $_POST['confirm_password'];
-
-    if ($newPassword !== $confirmPassword) {
-        $_SESSION['error'] = "Passwords do not match!";
-    } else {
-        $pass_stmt = $conn->prepare("SELECT password FROM users WHERE studentId = ?");
-        $pass_stmt->bind_param("s", $studentId);
-        $pass_stmt->execute();
-        $pass_result = $pass_stmt->get_result();
-        $row = $pass_result->fetch_assoc();
-
-        if ($row && password_verify($currentPassword, $row['password'])) {
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-            $update_pass_stmt = $conn->prepare("UPDATE users SET password = ? WHERE studentId = ?");
-            $update_pass_stmt->bind_param("ss", $hashedPassword, $studentId);
-
-            if ($update_pass_stmt->execute()) {
-                $_SESSION['success'] = "Password updated successfully!";
-                header("Location: profile.php");
-                exit();
-            } else {
-                $_SESSION['error'] = "Error updating password.";
-            }
-        } else {
-            $_SESSION['error'] = "Current password is incorrect!";
+// Handle Subject Enrollment
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
+    $selected_subjects = $_POST['subjects'] ?? [];
+    
+    $conn->query("DELETE FROM enrollments WHERE user_id = '$studentId'");
+    
+    foreach ($selected_subjects as $subject_id) {
+        $insert_stmt = $conn->prepare("INSERT INTO enrollments (user_id, subject_id) VALUES (?, ?)");
+        $insert_stmt->bind_param("ss", $studentId, $subject_id);
+        if (!$insert_stmt->execute()) {
+            error_log("Error inserting subject: " . $insert_stmt->error);
         }
     }
+    
+    $_SESSION['success'] = "Subjects updated successfully!";
+    header("Location: profile.php");
+    exit();
 }
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -187,25 +174,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         }
     }
 </style>
-
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
+<!-- Navbar -->
+<div class="navbar">
         <div class="logo">
             <img src="assets/logo.png" alt="Logo" class="logo-img">
             <span class="website-name">UPTM Study Ease</span>
         </div>
-
-        <!-- Desktop Navigation -->
         <div class="nav-links">
             <a href="home.php">Home</a>
             <a href="inbox.php">Dashboard</a>
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
-
-        <!-- Mobile Menu -->
         <div class="hamburger">
             <div></div>
             <div></div>
@@ -220,97 +202,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
-<!-- Main Profile Page -->
-<div class="profile-container">
-    <!-- Left: Profile Update -->
-    <div class="profile-section">
-        <h2>Update Profile</h2>
 
-        <?php if (isset($_SESSION['success'])) { echo "<p class='success'>{$_SESSION['success']}</p>"; unset($_SESSION['success']); } ?>
-        <?php if (isset($_SESSION['error'])) { echo "<p class='error'>{$_SESSION['error']}</p>"; unset($_SESSION['error']); } ?>
+    <div class="profile-container">
+        <div class="profile-section">
+            <h2>Update Profile</h2>
+            <form method="POST">
+                <label>Username:</label>
+                <input type="text" name="username" value="<?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?>" required>
 
-        <form method="POST">
-            <label>Username:</label>
-            <input type="text" name="username" 
-                value="<?= isset($user['username']) ? htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') : '' ?>" required>
+                <label>Email (cannot be changed):</label>
+                <input type="email" value="<?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
-            <label>Email (cannot be changed):</label>
-            <input type="email" 
-                value="<?= isset($user['email']) ? htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
+                <label>ID (cannot be changed):</label>
+                <input type="text" value="<?= htmlspecialchars($user['studentId'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
-            <label>ID (cannot be changed):</label>
-            <input type="text" 
-                value="<?= isset($user['studentId']) ? htmlspecialchars($user['studentId'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
+                <label>Course:</label>
+                <input type="text" value="<?= htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
-            <label>Course (cannot be changed):</label>
-            <input type="text" name="course"
-                value="<?= isset($user['course']) ? htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') : '' ?>" readonly>
+                <button type="submit" name="update_profile">Update Profile</button>
+            </form>
+        </div>
 
+        <div class="profile-section">
+            <h2>Enroll in Subjects</h2>
+            <form method="POST">
+                <label>Subjects:</label>
+                <select name="subjects[]" multiple>
+                    <option value="ITC1083" <?= in_array("ITC1083", $enrolled_subjects) ? "selected" : "" ?>>ITC1083 - Business Information Management Strategy</option>
+                    <option value="ITC2173" <?= in_array("ITC2173", $enrolled_subjects) ? "selected" : "" ?>>ITC2173 - Enterprise Information Systems</option>
+                    <option value="ITC2193" <?= in_array("ITC2193", $enrolled_subjects) ? "selected" : "" ?>>ITC2193 - Information Technology Essentials</option>
+                    <option value="ARC3043" <?= in_array("ARC3043", $enrolled_subjects) ? "selected" : "" ?>>ARC3043 - Linux OS</option>
+                    <option value="SWC3403" <?= in_array("SWC3403", $enrolled_subjects) ? "selected" : "" ?>>SWC3403 - Introduction to Mobile Application Development</option>
+                    <option value="FYP3024" <?= in_array("FYP3024", $enrolled_subjects) ? "selected" : "" ?>>FYP3024 - Computing Project</option>
+                </select>
+                <button type="submit" name="update_subjects">Update Subjects</button>
+            </form>
+        </div>
+        <div class="password-section">
+            <h2>Change Password</h2>
+            <form method="POST">
+                <label>Current Password:</label>
+                <input type="password" name="current_password" required>
+                <label>New Password:</label>
+                <input type="password" name="new_password" required>
+                <label>Confirm New Password:</label>
+                <input type="password" name="confirm_password" required>
+                <button type="submit" name="update_password">Update Password</button>
+            </form>
+        </div>
 
-            <button type="submit" name="update_profile">Update Profile</button>
-        </form>
     </div>
-
-    <!-- Right: Password Update -->
-    <div class="password-section">
-        <h2>Change Password</h2>
-
-        <form method="POST">
-            <label>Current Password:</label>
-            <div class="password-container">
-                <input type="password" name="current_password" id="current_password" required>
-                <span class="toggle-password" onclick="togglePassword('current_password')">👁️</span>
-            </div>
-
-            <label>New Password:</label>
-            <div class="password-container">
-                <input type="password" name="new_password" id="new_password" required>
-                <span class="toggle-password" onclick="togglePassword('new_password')">👁️</span>
-            </div>
-
-            <label>Confirm New Password:</label>
-            <div class="password-container">
-                <input type="password" name="confirm_password" id="confirm_password" required>
-                <span class="toggle-password" onclick="togglePassword('confirm_password')">👁️</span>
-            </div>
-
-            <button type="submit" name="update_password">Update Password</button>
-        </form>
-    </div>
-</div>
-
-
-
 </body>
-<script>
-    function togglePassword(inputId) {
-        var input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-        } else {
-            input.type = "password";
-        }
-    }
-    document.addEventListener("DOMContentLoaded", function() {
-        const hamburger = document.querySelector(".hamburger");
-        const mobileMenu = document.querySelector(".mobile-menu");
-        const navLinks = document.querySelector(".nav-links");
-
-        hamburger.addEventListener("click", function() {
-            mobileMenu.classList.toggle("active");
-        });
-
-        function checkScreenSize() {
-            if (window.innerWidth > 768) {
-                mobileMenu.classList.remove("active");
-                navLinks.style.display = "flex";
-            } else {
-                navLinks.style.display = "none";
-            }
-        }
-        checkScreenSize();
-        window.addEventListener("resize", checkScreenSize);
-    });
-</script>
-
 </html>

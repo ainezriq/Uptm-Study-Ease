@@ -1,6 +1,16 @@
 <?php
 session_start();
-//var_dump($_SESSION); 
+include 'auth/conn.php'; // Include database connection
+
+// Fetch notices for the student
+$notices = [];
+if (isset($_SESSION['email'])) {
+    $userEmail = $_SESSION['email'];
+    $stmt = $conn->prepare("SELECT * FROM notices WHERE email = ? ORDER BY created_at DESC");
+    $stmt->bind_param("s", $userEmail);
+    $stmt->execute();
+    $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
 ?>
 
 <!DOCTYPE html>
@@ -191,7 +201,23 @@ session_start();
         <a href="logout.php">Logout</a>
     </div>
 
+    <div class="notifications">
+        <h2>Notices</h2>
+        <?php if (empty($notices)): ?>
+            <p>No new notices.</p>
+        <?php else: ?>
+            <ul>
+                <?php foreach ($notices as $notice): ?>
+                    <li>
+                        <strong><?= htmlspecialchars($notice['content']) ?></strong>
+                        <small>Posted on: <?= $notice['created_at'] ?></small>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
     <div class="calendar-container">
+
         <div id="calendar"></div>
     </div>
 </body>

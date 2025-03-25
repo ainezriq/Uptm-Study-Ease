@@ -2,7 +2,8 @@
 session_start();
 $userType = $_SESSION['userType'] ?? 'Student'; // Default to Student
 $userEmail = $_SESSION['email'] ?? ''; // Get logged-in user email
-$userCourse = $_SESSION['course'] ?? ''; // Get student's course (assuming it's stored in session)
+$userCourse = $_SESSION['course'] ?? 'All'; // Get student's course (assuming it's stored in session)
+
 
 // Database Connection
 include 'auth/conn.php';
@@ -46,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 
     // Insert notice into the database if there is content
     if (!empty($notice)) {
-        $stmt = $conn->prepare("INSERT INTO notices (email, course, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO notices (email, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
+
+
         $stmt->bind_param("ssss", $userEmail, $course, $notice, $filePath);
         if ($stmt->execute()) {
             header("Location: inbox.php");
@@ -60,7 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 // Fetch Notices based on User Type
 if ($userType == 'Student') {
     // Fetch notices for the student's course or for "All" courses
-    $stmt = $conn->prepare("SELECT * FROM notices WHERE course = ? OR course = 'All' ORDER BY created_at DESC");
+    $stmt = $conn->prepare("SELECT * FROM notices WHERE subject_id = ? OR subject_id = 'All' ORDER BY created_at DESC");
+
+
     $stmt->bind_param("s", $userCourse);
 } else {
     // Lecturers can see all notices
@@ -130,7 +135,7 @@ $courses = $conn->query("SELECT DISTINCT course FROM users WHERE course IS NOT N
             <?php foreach ($notices as $notice): ?>
                 <div class="notice">
                     <p><?= htmlspecialchars($notice['content']) ?></p>
-                    <small>Posted on: <?= $notice['created_at'] ?> | Course: <?= $notice['course'] ?></small>
+                    <small>Posted on: <?= $notice['created_at'] ?> | Subject: <?= $notice['subject'] ?></small>
 
                     <?php if (!empty($notice['file_path'])): ?>
                         <div class="file-link">
