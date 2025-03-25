@@ -4,12 +4,14 @@ include '../auth/conn.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['studentId'])) {
+if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
+
     echo json_encode(["status" => "error", "message" => "Student not authenticated"]);
     exit;
 }
 
-$studentId = $_SESSION['studentId'];
+$userId = $_SESSION['userId']; // Changed from studentId to userId
+
 $subjectId = $_POST['subject_id'] ?? null;
 
 // Validate subject_id
@@ -19,7 +21,8 @@ if (!$subjectId || !is_numeric($subjectId)) {
 }
 
 // Get user ID from studentId
-$query = "SELECT id FROM users WHERE studentId = ?";
+$query = "SELECT id FROM users WHERE userId = ?"; // Updated query
+
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $studentId);
 $stmt->execute();
@@ -49,7 +52,8 @@ if ($result->num_rows === 0) {
 }
 
 // Check if the student is already enrolled
-$query = "SELECT id FROM enrollments WHERE user_id = ? AND subject_id = ?";
+$query = "SELECT id FROM enrollments WHERE user_id = ? AND subject_id = ?"; // Updated query
+
 $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $userId, $subjectId);
 $stmt->execute();

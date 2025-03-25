@@ -12,7 +12,8 @@ if (!isset($_SESSION['studentId'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $studentId = $_SESSION['studentId'];
+    $userId = $_SESSION['userId']; // Changed from studentId to userId
+
     $title = $_POST['title'] ?? '';
     $event_date = $_POST['start'] ?? '';
 
@@ -22,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Check if studentId exists in users table
-    $check_sql = "SELECT studentId FROM users WHERE studentId = ?";
+    $check_sql = "SELECT userId FROM users WHERE userId = ?"; // Updated query
+
     $check_stmt = $conn->prepare($check_sql);
     $check_stmt->bind_param("s", $studentId);
     $check_stmt->execute();
@@ -35,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check_stmt->close();
 
     // Insert event
-    $sql = "INSERT INTO user_events (studentId, title, event_date) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO user_events (userId, title, event_date) VALUES (?, ?, ?)"; // Updated query
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $studentId, $title, $event_date);
 

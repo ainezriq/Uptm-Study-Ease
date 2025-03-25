@@ -6,7 +6,10 @@ include 'auth/conn.php'; // Include database connection
 $notices = [];
 if (isset($_SESSION['email'])) {
     $userEmail = $_SESSION['email'];
-    $stmt = $conn->prepare("SELECT * FROM notices WHERE email = ? ORDER BY created_at DESC");
+$stmt = $conn->prepare("SELECT * FROM notices WHERE user_id = ? ORDER BY created_at DESC"); // Updated query
+$stmt->bind_param("i", $userId); // Changed from email to userId
+
+
     $stmt->bind_param("s", $userEmail);
     $stmt->execute();
     $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -224,6 +227,25 @@ if (isset($_SESSION['email'])) {
 
         <div id="calendar"></div>
     </div>
-</body>
+    <div class="enrollment-container">
+        <h2>Enroll in Subjects</h2>
+        <form method="POST" action="functions/store_subjects.php">
+            <label for="subjects">Select Subjects:</label>
+            <select name="subjects[]" id="subjects" multiple>
+                <?php
+                // Fetch available subjects
+                $subject_stmt = $conn->prepare("SELECT subject_code, subject_name FROM subjects");
+                $subject_stmt->execute();
+                $subjects = $subject_stmt->get_result();
+
+                while ($row = $subjects->fetch_assoc()) {
+                    echo '<option value="' . htmlspecialchars($row['subject_code']) . '">' . htmlspecialchars($row['subject_name']) . '</option>';
+                }
+                ?>
+            </select>
+            <button type="submit">Enroll</button>
+        </form>
+    </div>
+
 
 </html>

@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['register'])) {
         $username = htmlspecialchars(trim($_POST['username']));
         $email = trim(strtolower($_POST['email']));
-        $studentId = trim($_POST['studentId']);
+        $userId = trim($_POST['userId']); // Changed from studentId to userId
         $course = trim($_POST['course']);
         $userType = trim($_POST['userType']);
         
@@ -19,20 +19,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // Check if student ID exists
-        $stmt = $conn->prepare("SELECT studentId FROM users WHERE studentId = ?");
-        $stmt->bind_param("s", $studentId);
+        // Check if user ID exists
+        $stmt = $conn->prepare("SELECT userId FROM users WHERE userId = ?"); // Updated query
+        $stmt->bind_param("s", $userId);
+
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            header("Location: ../index.php?error=studentId_exists");
+            header("Location: ../index.php?error=userId_exists"); // Updated error message
             exit();
         }
         $stmt->close();
 
-        
-        $stmt = $conn->prepare("INSERT INTO users (username, email, studentId, password, userType, course) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssss", $username, $email, $studentId, $password, $userType, $course);
+        $stmt = $conn->prepare("INSERT INTO users (username, email, userId, password, userType, course) VALUES (?, ?, ?, ?, ?, ?)"); // Updated query
+        $stmt->bind_param("ssssss", $username, $email, $userId, $password, $userType, $course);
 
         if ($stmt->execute()) {
             header("Location: ../index.php?success=registered");
@@ -41,10 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
     } elseif (isset($_POST['login'])) {
-        $studentId = trim($_POST['studentId']);
+        $userId = trim($_POST['userId']); // Changed from studentId to userId
         
-        $stmt = $conn->prepare("SELECT password, userType, course FROM users WHERE studentId = ?");
-        $stmt->bind_param("s", $studentId);
+        $stmt = $conn->prepare("SELECT password, userType, course FROM users WHERE userId = ?"); // Updated query
+        $stmt->bind_param("s", $userId);
+
         $stmt->execute();
         $stmt->store_result();
 
@@ -52,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($db_password, $userType, $course);
             $stmt->fetch();
             if ($password === $db_password) { // Direct password check
-                $_SESSION['studentId'] = $studentId;
+                $_SESSION['userId'] = $userId; // Updated session variable
                 $_SESSION['userType'] = $userType;
                 $_SESSION['course'] = $course;
                 header("Location: ../home.php");

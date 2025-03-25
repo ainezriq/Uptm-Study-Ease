@@ -47,11 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 
     // Insert notice into the database if there is content
     if (!empty($notice)) {
-    $stmt = $conn->prepare("INSERT INTO notices (student_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO notices (user_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
 
 
 
-        $stmt->bind_param("ssss", $userId, $course, $notice, $filePath);
+
+        $stmt->bind_param("ssss", $user_id, $course, $notice, $filePath);
+
 
         if ($stmt->execute()) {
             header("Location: inbox.php");
@@ -66,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 if ($userType == 'Student') {
     // Fetch notices for the student's course or for "All" courses
     $stmt = $conn->prepare("SELECT * FROM notices WHERE subject_id = ? OR subject_id = 'All' ORDER BY created_at DESC");
+    $stmt->bind_param("s", $userCourse);
+
 
 
     $stmt->bind_param("s", $userCourse);

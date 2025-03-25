@@ -4,18 +4,20 @@ include '../auth/conn.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['studentId'])) {
-    echo json_encode(["status" => "error", "message" => "Student not authenticated"]);
+if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
+    echo json_encode(["status" => "error", "message" => "User not authenticated"]);
     exit;
 }
 
-$studentId = $_SESSION['studentId'];
+$userId = $_SESSION['userId']; // Changed from studentId to userId
+
 $subjects = [];
 
-// Get user ID from studentId
-$query = "SELECT id FROM users WHERE studentId = ?";
+// Get user ID from userId
+$query = "SELECT id FROM users WHERE userId = ?"; // Updated query
+
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $studentId);
+$stmt->bind_param("s", $userId); // Changed from studentId to userId
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -28,7 +30,7 @@ $user = $result->fetch_assoc();
 $userId = $user['id'];
 $stmt->close();
 
-// Fetch subjects assigned to the logged-in student
+// Fetch subjects assigned to the logged-in user
 $query = "SELECT s.subject_code, s.subject_name 
           FROM subjects s
           JOIN enrollments e ON s.id = e.subject_id

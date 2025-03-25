@@ -1,4 +1,41 @@
-/* Add your styles here */
+.enrollment-container {
+    background-color: #f9f9f9; /* Light background for the container */
+    border: 1px solid #ddd; /* Border around the container */
+    border-radius: 5px; /* Rounded corners */
+    padding: 15px; /* Padding inside the container */
+    margin: 20px 0; /* Margin above and below the container */
+}
+
+.enrollment-container h2 {
+    margin: 0 0 10px; /* Margin for the heading */
+    font-size: 1.5em; /* Font size for the heading */
+    color: #333; /* Color for the heading */
+}
+
+.enrollment-container select {
+    width: 100%; /* Full width for the dropdown */
+    padding: 12px; /* Padding inside the dropdown */
+    margin: 10px 0; /* Margin above and below the dropdown */
+    border: 1px solid #ddd; /* Border for the dropdown */
+    border-radius: 5px; /* Rounded corners for the dropdown */
+}
+
+.enrollment-container button[type="submit"] {
+    background-color: #987554; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    padding: 12px; /* Padding inside the button */
+    border-radius: 5px; /* Rounded corners for the button */
+    font-size: 16px; /* Font size for the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Transition for hover effect */
+    width: 100%; /* Full width for the button */
+}
+
+.enrollment-container button[type="submit"]:hover {
+    background-color: #664229; /* Darker background on hover */
+}
+
 
 .notifications {
     background-color: #f9f9f9;

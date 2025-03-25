@@ -7,14 +7,17 @@ include '../auth/conn.php';
 header('Content-Type: application/json');
 
 // Ensure user is logged in
-if (!isset($_SESSION['studentId'])) {
+if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
+
     echo json_encode(["error" => "User not logged in"]);
     exit;
 }
 
-$studentId = $_SESSION['studentId'];
+$userId = $_SESSION['userId']; // Changed from studentId to userId
 
-$sql = "SELECT id, title, event_date FROM user_events WHERE studentId = ?";
+
+$sql = "SELECT id, title, event_date FROM user_events WHERE userId = ?"; // Updated query
+
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $studentId);
 $stmt->execute();
