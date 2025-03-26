@@ -51,7 +51,8 @@ if ($result->num_rows === 0) {
 }
 
 // Check if the user is already enrolled
-$query = "SELECT id FROM enrollments WHERE user_id = ? AND subject_code = ?"; // Updated query
+$query = "SELECT id FROM enrollments WHERE userId = ? AND subject_code = ?"; // Updated query
+
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param("is", $userId, $subjectId);
@@ -67,7 +68,8 @@ if ($result->num_rows > 0) {
 error_log("Attempting to enroll user: $userId in subject: $subjectId");
 // Enroll the user
 
-$query = "INSERT INTO enrollments (user_id, subject_code) VALUES (?, ?)";
+$query = "INSERT INTO enrollments (userId, subject_code) VALUES (?, ?)";
+
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param("is", $userId, $subjectId);

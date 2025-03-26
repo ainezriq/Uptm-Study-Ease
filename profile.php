@@ -223,25 +223,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
             </form>
         </div>
 
+        <?php if ($user['userType'] == 'Student'): ?>
         <div class="profile-section">
             <h2>Enroll in Subjects</h2>
             <form method="POST">
                 <label>Subjects:</label>
                 <select name="subjects[]" multiple>
+
                     <?php
-                    $subject_codes = ["ITC1083", "ITC2173", "ITC2193", "ARC3043", "SWC3403", "FYP3024"];
+                    $stmt = $conn->prepare("SELECT subject_id, subject_name FROM subjects");
+                    $stmt->execute();
+                    $subject_result = $stmt->get_result();
+                    $subject_codes = [];
+                    while ($row = $subject_result->fetch_assoc()) {
+                        $subject_codes[$row['subject_id']] = $row['subject_name'];
+                    }
+
                     foreach ($subject_codes as $subject_code) {
-                        $stmt = $conn->prepare("SELECT subject_name FROM subjects WHERE subject_code = ?");
-                        $stmt->bind_param("s", $subject_code);
+                        $subject_name = $subject_codes[$subject_code] ?? 'Unknown Subject';
+
                         $stmt->execute();
                         $subject_result = $stmt->get_result();
                         $subject = $subject_result->fetch_assoc();
                         $selected = in_array($subject_code, $enrolled_subjects) ? "selected" : "";
-                        echo "<option value=\"$subject_code\" $selected>$subject_code - " . htmlspecialchars($subject['subject_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+                        echo "<option value=\"$subject_code\" $selected>$subject_code - " . htmlspecialchars($subject_name, ENT_QUOTES, 'UTF-8') . "</option>";
+
                     }
                     ?>
                 </select>
                 <button type="submit" name="update_subjects">Update Subjects</button>
+        </div>
+        <?php endif; ?>
+
             </form>
         </div>
         <div class="password-section">

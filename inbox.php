@@ -61,9 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 if ($userType == 'Student') {
     // Fetch notices for the subjects the student is enrolled in
     $stmt = $conn->prepare("SELECT n.* FROM notices n 
-                             JOIN enrollments e ON n.subject_id = e.subject_id 
+                             JOIN enrollments e ON n.subject_id = e.subject_code 
                              WHERE e.user_id = ? 
                              ORDER BY n.created_at DESC");
+
     $stmt->bind_param("i", $userId);
 
 } else {

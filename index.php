@@ -43,7 +43,8 @@
             <br>
             <input type="password" name="password" placeholder="Password" required>
             <br>
-            <input type="text" name="studentId" placeholder="Student ID" required>
+            <input type="text" name="userId" placeholder="User ID" required> <!-- Changed from studentId to userId -->
+
             <br>
 
             <!-- Course Select -->
@@ -58,8 +59,9 @@
             <!-- User Type Selection -->
             <select name="userType" required>
                 <option value="" disabled selected>Select User Type</option>
-                <option value="Student">Student</option>
+                <option value="Student">Student</option> <!-- User type options remain unchanged -->
                 <option value="Lecturer">Lecturer</option>
+
             </select>
             <br>
             <button type="submit" name="register">Sign Up</button>
