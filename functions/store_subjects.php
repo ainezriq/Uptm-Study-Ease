@@ -17,8 +17,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Check if each subject exists before inserting
+    foreach ($subjects as $subject) {
+        $checkQuery = "SELECT id FROM subjects WHERE subject_id = ?";
+        $checkStmt = $conn->prepare($checkQuery);
+        $checkStmt->bind_param("s", $subject);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+
+        if ($checkResult->num_rows === 0) {
+            echo json_encode(["error" => "Subject ID $subject does not exist."]);
+            exit;
+        }
+        $checkStmt->close();
+    }
+
     // Prepare the insert statement
-$sql = "INSERT INTO enrollments (user_id, subject_code) VALUES (?, ?)";
+    $sql = "INSERT INTO enrollments (userId, subject_id) VALUES (?, ?)"; // Ensure correct insertion
+
+
+
 
 
     $stmt = $conn->prepare($sql);
@@ -34,7 +52,9 @@ $stmt->bind_param("is", $userId, $subject); // Changed from studentId to userId
         }
     }
 
-    echo json_encode(["success" => "Successfully enrolled in selected subjects"]);
+header("Location: ../home.php"); // Redirect to home.php on success
+exit;
+
     $stmt->close();
     $conn->close();
 } else {

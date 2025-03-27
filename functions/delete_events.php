@@ -3,7 +3,8 @@ include '../auth/conn.php';
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-if (!isset($_SESSION['studentId'])) { // Changed from studentId to userId
+if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
+
 
 
         echo "Error: User not logged in";
@@ -19,7 +20,8 @@ $userId = $_SESSION['userId']; // Changed from studentId to userId
         exit;
     }
 
-$stmt = $conn->prepare("DELETE FROM user_events WHERE id = ? AND userId = ?"); // Updated query
+$stmt = $conn->prepare("DELETE FROM user_events WHERE title = ? AND userId = ?"); // Updated query
+
 
     $stmt->bind_param("is", $id, $userId);
 

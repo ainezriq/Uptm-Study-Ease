@@ -17,7 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $stmt = $conn->prepare("UPDATE user_events SET event_date = ? WHERE id = ? AND userId = ?"); // Updated query
+$stmt = $conn->prepare("UPDATE user_events SET event_date = ? WHERE title = ? AND userId = ?"); // Updated query
+
 
     $stmt->bind_param("sis", $new_date, $id, $userId);
 

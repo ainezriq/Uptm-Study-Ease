@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+* {
+    font-family: 'Roboto', sans-serif; /* Apply Roboto font to all elements */
+}
+
 .enrollment-container {
     background-color: #f9f9f9; /* Light background for the container */
     border: 1px solid #ddd; /* Border around the container */
@@ -13,7 +19,7 @@
 }
 
 .enrollment-container select {
-    width: 100%; /* Full width for the dropdown */
+    width: 70%; /* Full width for the dropdown */
     padding: 12px; /* Padding inside the dropdown */
     margin: 10px 0; /* Margin above and below the dropdown */
     border: 1px solid #ddd; /* Border for the dropdown */
@@ -35,7 +41,6 @@
 .enrollment-container button[type="submit"]:hover {
     background-color: #664229; /* Darker background on hover */
 }
-
 
 .notifications {
     background-color: #f9f9f9;
@@ -78,12 +83,16 @@
 .content-container {
     display: flex; /* Use flexbox for layout */
     gap: 10px; /* Reduced space between notices and calendar */
-
+    text-align: center; /* Center the calendar */
 }
+
 
 .calendar-container {
-    flex-grow: 1; /* Allow calendar to take remaining space */
+    width: 50%; /* Set calendar to medium size */
+    flex-grow: 0; /* Prevent it from growing */
+    margin: 0 auto; /* Center the calendar container */
 }
+
 
 input[type="text"],
 input[type="email"],
@@ -149,17 +158,17 @@ select {
     padding-right: 30px;
 }
 
-#register-form {
+#login-form {
     display: flex;
     flex-wrap: wrap; 
     justify-content: space-between;
     gap: 10px;
 }
 
-#register-form input[type="text"],
-#register-form input[type="email"],
-#register-form input[type="password"],
-#register-form select {
+#login-form input[type="text"],
+#login-form input[type="email"],
+#login-form input[type="password"],
+#login-form select {
     width: 48%; 
 }
 
@@ -245,6 +254,10 @@ select {
     width: 90%;
     max-width: 700px;
     margin-top: 20px; /* Reduced top margin for calendar */
+    display: inline-block; /* Allow the calendar to be centered */
+    margin: 0 auto; /* Center the calendar */
+
+
 
     padding: 15px;
     border-radius: 10px;

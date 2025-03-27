@@ -6,10 +6,13 @@ include 'auth/conn.php'; // Include database connection
 $notices = [];
 if (isset($_SESSION['userId'])) {
     $userId = $_SESSION['userId'];
-    $stmt = $conn->prepare("SELECT * FROM notices WHERE user_id = ? ORDER BY created_at DESC");
-    $stmt->bind_param("i", $userId);
+$stmt = $conn->prepare("SELECT * FROM notices WHERE userId = ? ORDER BY created_at DESC"); // Fetch notices for the user
+
+    $stmt->bind_param("s", $userId);
+
     $stmt->execute();
-    $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notices
+
 }
 ?>
 
@@ -72,7 +75,8 @@ if (isset($_SESSION['userId'])) {
                                         response = JSON.parse(response); // Ensure it's valid JSON
                                     }
 
-                                    if (response.success) {
+                                    if (response.status === "success") {
+
                                         alert(response.success);
                                         $('#calendar').fullCalendar('refetchEvents');
                                     } else {
@@ -180,7 +184,7 @@ if (isset($_SESSION['userId'])) {
         <!-- Desktop Navigation -->
         <div class="nav-links">
             <a href="home.php">Home</a>
-            <a href="inbox.php">Inbox</a>
+            <a href="inbox.php">Dashboard</a>
             <a href="profile.php">Profile</a>
             <a href="logout.php">Logout</a>
         </div>
@@ -196,13 +200,14 @@ if (isset($_SESSION['userId'])) {
     <!-- Mobile Dropdown Menu -->
     <div class="mobile-menu">
         <a href="home.php">Home</a>
-        <a href="inbox.php">Inbox</a>
+        <a href="inbox.php">Dashboard</a>
         <a href="profile.php">Profile</a>
         <a href="logout.php">Logout</a>
     </div>
 
     <div class="content-container">
-        <div class="notifications">
+        <div class="notifications" style="flex-basis: 40%;">
+
 
         <h2>Notices</h2>
         <?php if (empty($notices)): ?>
@@ -219,7 +224,10 @@ if (isset($_SESSION['userId'])) {
         <?php endif; ?>
     </div>
         </div>
-        <div class="calendar-container">
+    <h2>Task Calendar</h2> <!-- Added title for the calendar -->
+    <div class="calendar-container" style="width: 50%; text-align: center;"> <!-- Centering the calendar -->
+
+
 
 
         <div id="calendar"></div>
@@ -229,19 +237,16 @@ if (isset($_SESSION['userId'])) {
         <form method="POST" action="functions/store_subjects.php">
             <label for="subjects">Select Subjects:</label>
             <select name="subjects[]" id="subjects" multiple>
-                <?php
-                // Fetch available subjects
-                $subject_stmt = $conn->prepare("SELECT subject_code, subject_name FROM subjects");
-                $subject_stmt->execute();
-                $subjects = $subject_stmt->get_result();
-
-                while ($row = $subjects->fetch_assoc()) {
-                    echo '<option value="' . htmlspecialchars($row['subject_code']) . '">' . htmlspecialchars($row['subject_name']) . '</option>';
-                }
-                ?>
+                <option value="ITC1083">ITC1083 - Business Information Management Strategy</option>
+                <option value="ITC2173">ITC2173 - Enterprise Information Systems</option>
+                <option value="ITC2193">ITC2193 - Information Technology Essentials</option>
+                <option value="ARC3043">ARC3043 - Linux OS</option>
+                <option value="SWC3403">SWC3403 - Introduction to Mobile Application Development</option>
+                <option value="FYP3024">FYP3024 - Computing Project</option>
             </select>
             <button type="submit">Enroll</button>
         </form>
+
     </div>
 
 

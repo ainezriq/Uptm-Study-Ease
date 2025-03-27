@@ -14,7 +14,8 @@ if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
 
 $userId = $_SESSION['userId']; // Changed from studentId to userId
 
-$sql = "SELECT id, title, event_date FROM user_events WHERE userId = ?"; // Updated query
+$sql = "SELECT title, event_date FROM user_events WHERE userId = ?"; // Updated query
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $userId);
@@ -24,7 +25,8 @@ $result = $stmt->get_result();
 
 $events = [];
 while ($row = $result->fetch_assoc()) {
-    $eventDate = date('Y-m-d\TH:i:s', strtotime($row['event_date'])); // Format for FullCalendar
+$eventDate = date('Y-m-d H:i:s', strtotime($row['event_date'])); // Format for FullCalendar
+
 
     $events[] = [
         'id' => $row['id'],

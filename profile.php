@@ -13,7 +13,9 @@ if (!isset($_SESSION['userId'])) {
 $userId = $_SESSION['userId'];
 
 // Fetch user details
-$stmt = $conn->prepare("SELECT id, username, email, userId, userType, course FROM users WHERE userId = ?");
+$stmt = $conn->prepare("SELECT userId, username, email, userType, course FROM users WHERE userId = ?");
+
+
 $stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -24,7 +26,8 @@ if (!$user) {
 }
 
 // Fetch enrolled subjects
-$subjects_stmt = $conn->prepare("SELECT subject_code FROM enrollments WHERE user_id = ?");
+$subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE userId = ?");
+
 $subjects_stmt->bind_param("s", $userId);
 $subjects_stmt->execute();
 $subjects_result = $subjects_stmt->get_result();
@@ -56,7 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
     $conn->query("DELETE FROM enrollments WHERE user_id = '$userId'");
 
     foreach ($selected_subjects as $subject_code) {
-        $insert_stmt = $conn->prepare("INSERT INTO enrollments (user_id, subject_code) VALUES (?, ?)");
+$insert_stmt = $conn->prepare("INSERT INTO enrollments (userId, subject_id) VALUES (?, ?)");
+
         $insert_stmt->bind_param("ss", $userId, $subject_code);
         if (!$insert_stmt->execute()) {
             error_log("Error inserting subject: " . $insert_stmt->error);
@@ -152,14 +156,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
 
     @media (max-width: 768px) {
         .container {
-            width: 95%;
+            width: 75%;
             flex-direction: column;
             padding: 10px;
         }
 
         .profile-section,
         .password-section {
-            width: 100%;
+            width: 70%;
             padding: 15px;
         }
 
@@ -216,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
                 <label>ID (cannot be changed):</label>
                 <input type="text" value="<?= htmlspecialchars($user['userId'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
-                <label>Course:</label>
+                <label>Course (cannot be changed):</label>
                 <input type="text" value="<?= htmlspecialchars($user['course'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
                 <button type="submit" name="update_profile">Update Profile</button>
