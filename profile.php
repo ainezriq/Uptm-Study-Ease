@@ -14,8 +14,6 @@ $userId = $_SESSION['userId'];
 
 // Fetch user details
 $stmt = $conn->prepare("SELECT userId, username, email, userType, course FROM users WHERE userId = ?");
-
-
 $stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -26,14 +24,17 @@ if (!$user) {
 }
 
 // Fetch enrolled subjects
-$subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE userId = ?");
+$subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE userId = ?"); 
+
 
 $subjects_stmt->bind_param("s", $userId);
 $subjects_stmt->execute();
 $subjects_result = $subjects_stmt->get_result();
 $enrolled_subjects = [];
+
 while ($row = $subjects_result->fetch_assoc()) {
-    $enrolled_subjects[] = $row['subject_code'];
+    $enrolled_subjects[] = $row['subject_id']; 
+
 }
 
 // Handle Profile Update
@@ -56,11 +57,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
     $selected_subjects = $_POST['subjects'] ?? [];
     
-    $conn->query("DELETE FROM enrollments WHERE user_id = '$userId'");
+    $delete_stmt = $conn->prepare("DELETE FROM enrollments WHERE userId = ?");
+    $delete_stmt->bind_param("s", $userId);
+    $delete_stmt->execute();
 
     foreach ($selected_subjects as $subject_code) {
-$insert_stmt = $conn->prepare("INSERT INTO enrollments (userId, subject_id) VALUES (?, ?)");
-
+        $insert_stmt = $conn->prepare("INSERT INTO enrollments (userId, subject_id) VALUES (?, ?)");
         $insert_stmt->bind_param("ss", $userId, $subject_code);
         if (!$insert_stmt->execute()) {
             error_log("Error inserting subject: " . $insert_stmt->error);
@@ -80,104 +82,6 @@ $insert_stmt = $conn->prepare("INSERT INTO enrollments (userId, subject_id) VALU
     <title>User Profile</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
-<style>
-    .profile-container {
-        width: 80%;
-        max-width: 800px;
-        margin: auto;
-        display: flex;
-        gap: 20px;
-        padding: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .profile-section,
-    .password-section {
-        flex: 1;
-        min-width: 320px;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-    }
-
-    h2 {
-        text-align: center;
-        margin-bottom: 15px;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    label {
-        font-weight: bold;
-        margin-top: 10px;
-    }
-
-    input {
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    .success {
-        color: green;
-        text-align: center;
-    }
-
-    .error {
-        color: red;
-        text-align: center;
-    }
-
-    /* Password reveal styling */
-    .password-container {
-        display: flex;
-        align-items: center;
-        position: relative;
-    }
-
-    .password-container input {
-        flex: 1;
-        padding-right: 30px;
-    }
-
-    .toggle-password {
-        position: absolute;
-        right: 10px;
-        cursor: pointer;
-        font-size: 18px;
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            width: 75%;
-            flex-direction: column;
-            padding: 10px;
-        }
-
-        .profile-section,
-        .password-section {
-            width: 70%;
-            padding: 15px;
-        }
-
-        input,
-        button {
-            font-size: 16px;
-            padding: 12px;
-        }
-
-        h2 {
-            font-size: 20px;
-        }
-    }
-</style>
 <body>
 
 <!-- Navbar -->
@@ -229,51 +133,44 @@ $insert_stmt = $conn->prepare("INSERT INTO enrollments (userId, subject_id) VALU
 
         <?php if ($user['userType'] == 'Student'): ?>
         <div class="profile-section">
-            <h2>Enroll in Subjects</h2>
+            <h2>Update Enrolled Subjects</h2>
             <form method="POST">
-                <label>Subjects:</label>
+                <label>Currently Enrolled Subjects:</label>
                 <select name="subjects[]" multiple>
-
                     <?php
-                    $stmt = $conn->prepare("SELECT subject_id, subject_name FROM subjects");
+$stmt = $conn->prepare("SELECT subject_id FROM subjects");
+
                     $stmt->execute();
                     $subject_result = $stmt->get_result();
-                    $subject_codes = [];
+                    $subject_id = [];
                     while ($row = $subject_result->fetch_assoc()) {
-                        $subject_codes[$row['subject_id']] = $row['subject_name'];
+                        $subject_id[$row['subject_id']] = $row['subject_name'];
                     }
 
-                    foreach ($subject_codes as $subject_code) {
-                        $subject_name = $subject_codes[$subject_code] ?? 'Unknown Subject';
-
-                        $stmt->execute();
-                        $subject_result = $stmt->get_result();
-                        $subject = $subject_result->fetch_assoc();
-                        $selected = in_array($subject_code, $enrolled_subjects) ? "selected" : "";
-                        echo "<option value=\"$subject_code\" $selected>$subject_code - " . htmlspecialchars($subject_name, ENT_QUOTES, 'UTF-8') . "</option>";
-
+                    foreach ($subject_id as $id => $name) {
+                        $selected = in_array($id, $enrolled_subjects) ? "selected" : "";
+                        echo "<option value=\"$id\" $selected>$id - " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "</option>";
                     }
                     ?>
                 </select>
                 <button type="submit" name="update_subjects">Update Subjects</button>
+            </form>
         </div>
         <?php endif; ?>
-
-            </form>
-        </div>
-        <div class="password-section">
-            <h2>Change Password</h2>
-            <form method="POST">
-                <label>Current Password:</label>
-                <input type="password" name="current_password" required>
-                <label>New Password:</label>
-                <input type="password" name="new_password" required>
-                <label>Confirm New Password:</label>
-                <input type="password" name="confirm_password" required>
-                <button type="submit" name="update_password">Update Password</button>
-            </form>
-        </div>
-
     </div>
+
+    <div class="password-section">
+        <h2>Change Password</h2>
+        <form method="POST">
+            <label>Current Password:</label>
+            <input type="password" name="current_password" required>
+            <label>New Password:</label>
+            <input type="password" name="new_password" required>
+            <label>Confirm New Password:</label>
+            <input type="password" name="confirm_password" required>
+            <button type="submit" name="update_password">Update Password</button>
+        </form>
+    </div>
+
 </body>
 </html>

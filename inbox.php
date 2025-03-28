@@ -64,9 +64,7 @@ if ($userType == 'Student') {
                              JOIN enrollments e ON n.subject_id = e.subject_id 
                              WHERE e.userId = ? 
                              ORDER BY n.created_at DESC");
-
     $stmt->bind_param("i", $userId);
-
 } else {
     // Lecturers can see all notices
     $stmt = $conn->prepare("SELECT * FROM notices ORDER BY created_at DESC");
@@ -174,7 +172,8 @@ $subjects = $conn->query("SELECT subject_id, subject_name FROM subjects")->fetch
             <div class="popup-content">
                 <span class="close-btn" onclick="closeNoticeForm()">×</span>
                 <h3>Post Notice / Learning Materials</h3>
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" action="submit_notice.php" enctype="multipart/form-data">
+
                     <textarea name="notice" placeholder="Enter notice..." required></textarea>
                     <label for="subject">Select Subject:</label>
                     <select name="subject_id" required>

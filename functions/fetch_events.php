@@ -7,15 +7,14 @@ include '../auth/conn.php';
 header('Content-Type: application/json');
 
 // Ensure user is logged in
-if (!isset($_SESSION['userId'])) { // Changed from studentId to userId
+if (!isset($_SESSION['userId'])) {
     echo json_encode(["error" => "User not logged in"]);
     exit;
 }
 
-$userId = $_SESSION['userId']; // Changed from studentId to userId
+$userId = $_SESSION['userId'];
 
-$sql = "SELECT title, event_date FROM user_events WHERE userId = ?"; // Updated query
-
+$sql = "SELECT eventId, title, event_date FROM user_events WHERE userId = ?"; // Updated query to include eventId
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $userId);
@@ -25,11 +24,10 @@ $result = $stmt->get_result();
 
 $events = [];
 while ($row = $result->fetch_assoc()) {
-$eventDate = date('Y-m-d H:i:s', strtotime($row['event_date'])); // Format for FullCalendar
-
+    $eventDate = date('Y-m-d H:i:s', strtotime($row['event_date'])); // Format for FullCalendar
 
     $events[] = [
-        'id' => $row['id'],
+        'id' => $row['eventId'], // Use eventId for unique identification
         'title' => $row['title'],
         'start' => $eventDate,
         'color' => '#a67c52' // Brown color for events

@@ -6,13 +6,10 @@ include 'auth/conn.php'; // Include database connection
 $notices = [];
 if (isset($_SESSION['userId'])) {
     $userId = $_SESSION['userId'];
-$stmt = $conn->prepare("SELECT * FROM notices WHERE userId = ? ORDER BY created_at DESC"); // Fetch notices for the user
-
+    $stmt = $conn->prepare("SELECT * FROM notices WHERE userId = ? ORDER BY created_at DESC"); // Fetch notices for the user
     $stmt->bind_param("s", $userId);
-
     $stmt->execute();
-$notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notices
-
+    $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notices
 }
 ?>
 
@@ -76,8 +73,7 @@ $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notice
                                     }
 
                                     if (response.status === "success") {
-
-                                        alert(response.success);
+                                        alert(response.message);
                                         $('#calendar').fullCalendar('refetchEvents');
                                     } else {
                                         alert(response.error);
@@ -98,9 +94,7 @@ $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notice
                 // Render events
                 eventRender: function(event, element) {
                     console.log("Rendering event:", event);
-
                     element.find('.fc-time').remove();
-
                     var deleteBtn = $('<span class="event-delete"> ❌ </span>');
 
                     deleteBtn.on('click', function(e) {
@@ -206,48 +200,59 @@ $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notice
     </div>
 
     <div class="content-container">
-        <div class="notifications" style="flex-basis: 40%;">
-
-
-        <h2>Notices</h2>
-        <?php if (empty($notices)): ?>
-            <p>No new notices.</p>
-        <?php else: ?>
-            <ul>
-                <?php foreach ($notices as $notice): ?>
-                    <li>
-                        <strong><?= htmlspecialchars($notice['content']) ?></strong>
-                        <small>Posted on: <?= $notice['created_at'] ?></small>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </div>
+    <?php if ($_SESSION['userType'] === 'Student'): ?>
+        <div class="welcome-message" style="flex-basis: 40%;">
+            <h2>Welcome, Student!</h2>
         </div>
+        <div class="notifications" style="flex-basis: 40%;">
+            <h2>Notices</h2>
+            <?php if (empty($notices)): ?>
+                <p>No new notices.</p>
+            <?php else: ?>
+                <ul>
+                    <?php foreach ($notices as $notice): ?>
+                        <li>
+                            <strong><?= htmlspecialchars($notice['content']) ?></strong>
+                            <small>Posted on: <?= $notice['created_at'] ?></small>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    <?php elseif ($_SESSION['userType'] === 'Lecturer'): ?>
+        <div class="lecturer-message" style="flex-basis: 40%;">
+            <h2>Welcome, Lecturer!</h2>
+            <p>Please go to the <a href="inbox.php">Dashboard</a> to post learning materials.</p>
+        </div>
+    <?php endif; ?>
+    </div>
+
     <h2>Task Calendar</h2> <!-- Added title for the calendar -->
     <div class="calendar-container" style="width: 50%; text-align: center;"> <!-- Centering the calendar -->
-
-
-
-
         <div id="calendar"></div>
     </div>
     <div class="enrollment-container">
+    <?php if ($_SESSION['userType'] === 'Student'): ?>
         <h2>Enroll in Subjects</h2>
-        <form method="POST" action="functions/store_subjects.php">
-            <label for="subjects">Select Subjects:</label>
-            <select name="subjects[]" id="subjects" multiple>
-                <option value="ITC1083">ITC1083 - Business Information Management Strategy</option>
-                <option value="ITC2173">ITC2173 - Enterprise Information Systems</option>
-                <option value="ITC2193">ITC2193 - Information Technology Essentials</option>
-                <option value="ARC3043">ARC3043 - Linux OS</option>
-                <option value="SWC3403">SWC3403 - Introduction to Mobile Application Development</option>
-                <option value="FYP3024">FYP3024 - Computing Project</option>
-            </select>
+        <form method="POST" action="functions/enroll_subject.php">
+            <label for="subjects">Select Subjects:</label><br>
+            <div>
+                <input type="checkbox" name="subjects[]" value="ITC1083"> ITC1083 - Business Information Management Strategy<br>
+                <input type="checkbox" name="subjects[]" value="ITC2173"> ITC2173 - Enterprise Information Systems<br>
+                <input type="checkbox" name="subjects[]" value="ITC2193"> ITC2193 - Information Technology Essentials<br>
+                <input type="checkbox" name="subjects[]" value="ARC3043"> ARC3043 - Linux OS<br>
+                <input type="checkbox" name="subjects[]" value="SWC3403"> SWC3403 - Introduction to Mobile Application Development<br>
+                <input type="checkbox" name="subjects[]" value="FYP3024"> FYP3024 - Computing Project<br>
+                <input type="hidden" name="subject_names[]" value="Business Information Management Strategy">
+                <input type="hidden" name="subject_names[]" value="Enterprise Information Systems">
+                <input type="hidden" name="subject_names[]" value="Information Technology Essentials">
+                <input type="hidden" name="subject_names[]" value="Linux OS">
+                <input type="hidden" name="subject_names[]" value="Introduction to Mobile Application Development">
+                <input type="hidden" name="subject_names[]" value="Computing Project">
+            </div>
             <button type="submit">Enroll</button>
         </form>
-
+    <?php endif; ?>
     </div>
-
-
+</body>
 </html>
