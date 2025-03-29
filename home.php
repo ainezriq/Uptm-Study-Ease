@@ -4,12 +4,24 @@ include 'auth/conn.php'; // Include database connection
 
 // Fetch notices for the student
 $notices = [];
-if (isset($_SESSION['userId'])) {
+if (isset($_SESSION['userId']) && !empty($_SESSION['userId'])) {
+
     $userId = $_SESSION['userId'];
-    $stmt = $conn->prepare("SELECT * FROM notices WHERE userId = ? ORDER BY created_at DESC"); // Fetch notices for the user
+$stmt = $conn->prepare("SELECT * FROM notices WHERE userId = ? ORDER BY created_at DESC"); // Fetch notices for the user
+if (!$stmt) {
+    error_log("Database query error: " . $conn->error);
+    // Handle error appropriately, e.g., set a user-friendly message
+}
+
     $stmt->bind_param("s", $userId);
     $stmt->execute();
-    $notices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); // Store fetched notices
+$result = $stmt->get_result();
+if ($result) {
+    $notices = $result->fetch_all(MYSQLI_ASSOC); // Store fetched notices
+} else {
+    error_log("Error fetching notices: " . $stmt->error);
+}
+
 }
 ?>
 

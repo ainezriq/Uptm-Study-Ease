@@ -1,20 +1,25 @@
 <?php
 session_start();
 $userType = $_SESSION['userType'] ?? 'Student'; // Default to Student
+$userId = $_SESSION['userId'] ?? null; // Retrieve userId from session
 $userEmail = $_SESSION['email'] ?? ''; // Get logged-in user email
+
 $userCourse = $_SESSION['course'] ?? 'All'; // Get student's course (assuming it's stored in session)
 
 // Database Connection
 include 'auth/conn.php';
 
 // Handle Notice Submission (Only for Lecturer)
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer' && isset($_SESSION['userId'])) {
+
     $notice = $_POST['notice'] ?? '';
     $subject_id = $_POST['subject_id'] ?? ''; // Get selected subject_id
     $filePath = ''; // Default file path to empty
 
     // Check if a file is uploaded
     if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        error_log("File upload initiated for notice.");
+
         $fileTmpPath = $_FILES['file']['tmp_name'];
         $fileName = $_FILES['file']['name'];
         $fileSize = $_FILES['file']['size'];
@@ -37,14 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
             $filePath = $destination;
             echo "File uploaded successfully: " . $filePath; // Debug the file path
         } else {
-            echo "Error moving uploaded file!";
+            error_log("Error moving uploaded file: " . $_FILES['file']['error']);
         }
     } else {
-        echo "File upload error: " . $_FILES['file']['error'];
+        error_log("File upload error: " . $_FILES['file']['error']);
     }
 
     // Insert notice into the database if there is content
-    if (!empty($notice)) {
+    if (!empty($notice) && isset($subject_id)) {
+
         $stmt = $conn->prepare("INSERT INTO notices (user_id, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
         $stmt->bind_param("isss", $userId, $subject_id, $notice, $filePath);
 
@@ -52,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
             header("Location: inbox.php");
             exit();
         } else {
-            echo "Error inserting into database: " . $stmt->error;
+            error_log("Error inserting into database: " . $stmt->error);
         }
     }
 }
@@ -60,11 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
 // Fetch Notices based on User Type
 if ($userType == 'Student') {
     // Fetch notices for the subjects the student is enrolled in
-    $stmt = $conn->prepare("SELECT n.* FROM notices n 
-                             JOIN enrollments e ON n.subject_id = e.subject_id 
-                             WHERE e.userId = ? 
-                             ORDER BY n.created_at DESC");
-    $stmt->bind_param("i", $userId);
+$stmt = $conn->prepare("SELECT n.* FROM notices n JOIN enrollments e ON n.subject_id = e.subject_id WHERE e.userId = ? AND n.subject_id IS NOT NULL ORDER BY n.created_at DESC");
+
+    if (!$stmt) {
+        error_log("Database query error: " . $conn->error);
+    }
+error_log("User ID: " . $userId); // Debug statement to log the user ID
+$stmt->bind_param("i", $userId);
+
 } else {
     // Lecturers can see all notices
     $stmt = $conn->prepare("SELECT * FROM notices ORDER BY created_at DESC");

@@ -5,7 +5,7 @@ include 'auth/conn.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-if (!isset($_SESSION['userId'])) {
+if (!isset($_SESSION['userId']) || empty($_SESSION['userId'])) {
     header("Location: login.php");
     exit();
 }
@@ -14,19 +14,21 @@ $userId = $_SESSION['userId'];
 
 // Fetch user details
 $stmt = $conn->prepare("SELECT userId, username, email, userType, course FROM users WHERE userId = ?");
+if (!$stmt) {
+    error_log("Database query error: " . $conn->error);
+}
+
 $stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-if (!$user) {
+if (!$user || empty($user)) {
     die("User data not found.");
 }
 
 // Fetch enrolled subjects
 $subjects_stmt = $conn->prepare("SELECT subject_id FROM enrollments WHERE userId = ?"); 
-
-
 $subjects_stmt->bind_param("s", $userId);
 $subjects_stmt->execute();
 $subjects_result = $subjects_stmt->get_result();
@@ -34,11 +36,10 @@ $enrolled_subjects = [];
 
 while ($row = $subjects_result->fetch_assoc()) {
     $enrolled_subjects[] = $row['subject_id']; 
-
 }
 
 // Handle Profile Update
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile']) && isset($_SESSION['userId'])) {
     $username = $_POST['username'];
     
     $update_stmt = $conn->prepare("UPDATE users SET username = ? WHERE userId = ?");
@@ -58,6 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
     $selected_subjects = $_POST['subjects'] ?? [];
     
     $delete_stmt = $conn->prepare("DELETE FROM enrollments WHERE userId = ?");
+    if (!$delete_stmt) {
+        error_log("Database query error: " . $conn->error);
+    }
+
     $delete_stmt->bind_param("s", $userId);
     $delete_stmt->execute();
 
@@ -138,8 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
                 <label>Currently Enrolled Subjects:</label>
                 <select name="subjects[]" multiple>
                     <?php
-$stmt = $conn->prepare("SELECT subject_id FROM subjects");
-
+                    $stmt = $conn->prepare("SELECT subject_id FROM subjects");
                     $stmt->execute();
                     $subject_result = $stmt->get_result();
                     $subject_id = [];
@@ -170,6 +174,39 @@ $stmt = $conn->prepare("SELECT subject_id FROM subjects");
             <input type="password" name="confirm_password" required>
             <button type="submit" name="update_password">Update Password</button>
         </form>
+        <?php
+        // Handle Password Update
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
+            $current_password = $_POST['current_password'];
+            $new_password = $_POST['new_password'];
+            $confirm_password = $_POST['confirm_password'];
+
+            // Fetch the current password from the database
+            $password_stmt = $conn->prepare("SELECT password FROM users WHERE userId = ?");
+            $password_stmt->bind_param("s", $userId);
+            $password_stmt->execute();
+            $password_result = $password_stmt->get_result();
+            $user_data = $password_result->fetch_assoc();
+
+            if ($user_data && password_verify($current_password, $user_data['password'])) {
+                if ($new_password === $confirm_password) {
+                    // Update the password
+                    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                    $update_password_stmt = $conn->prepare("UPDATE users SET password = ? WHERE userId = ?");
+                    $update_password_stmt->bind_param("ss", $hashed_password, $userId);
+                    if ($update_password_stmt->execute()) {
+                        $_SESSION['success'] = "Password updated successfully!";
+                    } else {
+                        $_SESSION['error'] = "Error updating password";
+                    }
+                } else {
+                    $_SESSION['error'] = "New passwords do not match.";
+                }
+            } else {
+                $_SESSION['error'] = "Current password is wrong.";
+            }
+        }
+        ?>
     </div>
 
 </body>

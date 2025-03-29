@@ -7,7 +7,6 @@ $userId = $_SESSION['userId'] ?? ''; // Get logged-in user ID
 error_log("User ID: " . $userId); // Log user ID
 error_log("User Type: " . $userType); // Log user type
 
-
 // Database Connection
 include 'auth/conn.php';
 
@@ -23,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
         $fileTmpPath = $_FILES['file']['tmp_name'];
         $fileName = $_FILES['file']['name'];
         $fileSize = $_FILES['file']['size'];
-        $fileType = $_FILES['file']['type'];95
+        $fileType = $_FILES['file']['type'];
 
         // Specify directory to store the file
         $uploadDir = 'uploads/';
@@ -52,15 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $userType == 'Lecturer') {
     error_log("Notice Content: " . $notice);
 
     if (!empty($notice)) { // Check if notice content is not empty
-
         $stmt = $conn->prepare("INSERT INTO notices (userId, subject_id, content, file_path, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->bind_param("isss", $userId, $subject_id, $notice, $filePath);
+$stmt->bind_param("ssss", $userId, $subject_id, $notice, $filePath);
+
 
         if ($stmt->execute()) {
             header("Location: inbox.php");
             exit();
         } else {
-            echo "Error inserting into database: " . $stmt->error;
+            error_log("Error inserting into database: " . $stmt->error); // Enhanced error logging
+            echo "Error inserting into database: " . $stmt->error; // Display error message
         }
     }
 }
