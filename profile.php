@@ -165,6 +165,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
 
     <div class="password-section">
         <h2>Change Password</h2>
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error"><?= htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8') ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success"><?= htmlspecialchars($_SESSION['success'], ENT_QUOTES, 'UTF-8') ?></div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
         <form method="POST">
             <label>Current Password:</label>
             <input type="password" name="current_password" required>
@@ -174,6 +182,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
             <input type="password" name="confirm_password" required>
             <button type="submit" name="update_password">Update Password</button>
         </form>
+
         <?php
         // Handle Password Update
         if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_password'])) {
@@ -181,33 +190,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_subjects'])) {
             $new_password = $_POST['new_password'];
             $confirm_password = $_POST['confirm_password'];
 
-            // Fetch the current password from the database
-            $password_stmt = $conn->prepare("SELECT password FROM users WHERE userId = ?");
+            // Enhanced password verification
+            $password_stmt = $conn->prepare("SELECT password, password_algorithm FROM users WHERE userId = ?");
             $password_stmt->bind_param("s", $userId);
             $password_stmt->execute();
             $password_result = $password_stmt->get_result();
             $user_data = $password_result->fetch_assoc();
 
-            if ($user_data && password_verify($current_password, $user_data['password'])) {
+            error_log("Password verification attempt for user: $userId");
+            error_log("Input current password: $current_password");
+            error_log("Stored hash: " . ($user_data['password'] ?? 'NULL'));
+            error_log("Algorithm: " . ($user_data['password_algorithm'] ?? 'default'));
+
+            // Fallback verification if password_verify fails
+            $verified = false;
+            if ($user_data) {
+                $verified = password_verify($current_password, $user_data['password']);
+                if (!$verified && $user_data['password_algorithm'] === 'legacy') {
+                    $verified = ($user_data['password'] === md5($current_password));
+                }
+            }
+            
+            if ($verified) {
+                error_log("Password verification successful");
                 if ($new_password === $confirm_password) {
-                    // Update the password
+                    // Update password with current algorithm
                     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                    $update_password_stmt = $conn->prepare("UPDATE users SET password = ? WHERE userId = ?");
+                    $update_password_stmt = $conn->prepare("UPDATE users SET password = ?, password_algorithm = 'bcrypt' WHERE userId = ?");
                     $update_password_stmt->bind_param("ss", $hashed_password, $userId);
+
                     if ($update_password_stmt->execute()) {
                         $_SESSION['success'] = "Password updated successfully!";
+                        header("Location: profile.php");
+                        exit();
                     } else {
                         $_SESSION['error'] = "Error updating password";
+                        header("Location: profile.php");
+                        exit();
                     }
                 } else {
+                    error_log("New passwords do not match");
                     $_SESSION['error'] = "New passwords do not match.";
                 }
             } else {
+                error_log("Password verification failed");
                 $_SESSION['error'] = "Current password is wrong.";
             }
         }
         ?>
     </div>
-
 </body>
 </html>
